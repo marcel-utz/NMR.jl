@@ -4,6 +4,7 @@ module NMR
    include("SimpleGraphics.jl")
    include("SimplePlot.jl")
    include("Contour.jl")
+   include("LinearPredict.jl")
    include("MapPlot.jl")
    include("PauliMatrix.jl")
    include("SpinSim.jl")
@@ -14,5 +15,6 @@ module NMR
    export MapPlot
    export PauliMatrix
    export SpinSim
+   export LinearPredict
 
 end
