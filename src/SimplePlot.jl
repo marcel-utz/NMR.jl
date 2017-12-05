@@ -1,7 +1,7 @@
 module SimplePlot
 
-using Scaling
-using SimpleGraphics
+using NMR.Scaling
+using NMR.SimpleGraphics
 
 export Plot, Axes, Frame, Show, ContourPlot
 

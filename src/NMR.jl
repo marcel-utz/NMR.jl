@@ -1,7 +1,7 @@
 module NMR
 
-   include("SimpleGraphics.jl")
    include("Scaling.jl")
+   include("SimpleGraphics.jl")
    include("SimplePlot.jl")
    include("Contour.jl")
    include("MapPlot.jl")

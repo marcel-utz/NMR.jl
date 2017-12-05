@@ -1,6 +1,6 @@
 module SpinSim
 
-using PauliMatrix
+using NMR.PauliMatrix
 
 export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
        Commutator,Trc,RungeKutta,Propagate
