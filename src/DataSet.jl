@@ -66,20 +66,19 @@ The parameters are given in rad, k, and rad/k, where k are the units
 of the spectral domain (typically, Hz or ppm).
 """
 function PhaseCorrect(spect::Data1D;Ph0=0.0,Ph1=0.0,Pivot=0.0)
-    out=spect;
+    out=deepcopy(spect);
     out.dat = spect.dat .* [exp(im*(Ph0+(k-Pivot)*Ph1)) for k=ind(spect)]
     return out;
 end
 
-polyfit(x::Vector, y::Vector, deg::Int) = collect(v ^ p for v in x, p in 0:deg) \ y
+polyfit(x::Vector, y::Vector, deg::Int) = pinv(collect(v ^ p for v in x, p in 0:deg)) * y
 
-function horner(v::Vector, c::Vector)
-    r=zeros(v)
-    for k=length(c):-1:2
-      r += c[k]
-      r .*= v
+function horner(x::Vector, c::Vector)
+    r=ones(x)*c[end]
+    for k=(length(c)-1):-1:1
+        r.*=x
+        r+=c[k]
     end
-    r += c[1]
     return r
 end
 
@@ -87,9 +86,13 @@ end
 `BaseLineCorrect(spect::Data1D;regions=128,kfactor=5)` corrects the
 base line of `spect` using the algorithm
 by S. Golotvin, A. Williams, J. Magn. Reson. 146 (2000) 122-125.
+
+Note that if the input data is complex, the imaginary part is ignored,
+and the result is always real.
 """
 function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5)
-    out=spect;
+
+    out=Data1D(real.(spect.dat),spect.istart,spect.istop);
     n=length(out.dat)
     lreg=floor(Int64,n/regions)
 
@@ -97,16 +100,21 @@ function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5)
     mindev=minimum(abs.([std(out.dat[k:k+lreg]) for k=1:lreg:(n-lreg)]))
 
     # find base line points
-    select=[abs(std(out.dat[k:(k+wdw)])) < kfactor*mindev for k=1:(n-wdw)]
+    select=[abs(std(out.dat[(k-wdw):(k+wdw)])) < kfactor*mindev for k=(wdw+1):(n-wdw)]
 
-    pts=(1:(n-wdw))[select];
+    pts=((wdw+1):(n-wdw))[select];
+    println("Fitting $(length(pts)) Points.")
 
     # polynomial fitting
-    coeffs=polyfit(pts,out.dat[pts],order)
+    coeffs=polyfit(pts/n,out.dat[pts],order)
+    println("Coefficients: $coeffs")
 
-    out.dat -= horner(collect(1:n),coeffs)
+    res=sum(abs.(out.dat[pts]-horner(pts/n,coeffs)))
+    println("Residual: $res")
 
-    return out
+    out.dat .-= horner(collect(1:n)/n,coeffs)
+
+    return (out)
 
 end
 
