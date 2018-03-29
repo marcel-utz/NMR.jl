@@ -8,6 +8,8 @@ module NMR
    include("MapPlot.jl")
    include("PauliMatrix.jl")
    include("SpinSim.jl")
+   include("Bruker.jl")
+   include("DataSet.jl")
 
    export SimpleGraphics
    export Scaling
@@ -17,5 +19,6 @@ module NMR
    export SpinSim
    export LinearPredict
    export SimplePlot
+   export Bruker
 
 end
