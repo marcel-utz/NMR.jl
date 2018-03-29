@@ -7,7 +7,7 @@ function readFID(f::IOStream)
   while !eof(f)
     append!(data,(read(f,Float64,1)));
   end
-  return data[1:2:end]-im*data[2:2:end]
+  return data[1:2:end]+im*data[2:2:end]
 end
 
 function readFID(s::String)
