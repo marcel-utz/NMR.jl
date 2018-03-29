@@ -16,5 +16,6 @@ module NMR
    export PauliMatrix
    export SpinSim
    export LinearPredict
+   export SimplePlot
 
 end
