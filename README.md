@@ -7,6 +7,8 @@ At this point, it provides:
 - a home-built contour plotting routine: ```Contour.jl```
 - a data type to represent graphical information, with easy output to SVG: ```SimpleGraphics.jl```
 - routines supporting Hilbert space simulations of multi-spin systems: ```SpinSim.jl```
+- data import from Bruker (```Bruker.jl```) and from Varian (```Varian.jl```)
+- a data type to store digitally sampled data (1D spectra and FIDs): ```DataSet.jl```
+ 
 
 Use at your own risk :) !
-
