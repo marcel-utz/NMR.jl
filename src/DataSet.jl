@@ -2,6 +2,10 @@ module DataSet
 
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
+export integral
+
+import NMR.SimplePlot
+
 
 # Data structures for storing digitised data sets
 # Definitions:
@@ -117,5 +121,20 @@ function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5)
     return (out)
 
 end
+
+"""
+`integral(spect::Data1D)` computes the numerical integral of `spect` by
+the trapezoid rule.
+"""
+function integral(spect::Data1D)
+    s=sum(spect.dat[2:(end-1)])+0.5*spect.dat[1]+0.5*spect.dat[end]
+    return s*(spect.istop-spect.istart)/length(spect.dat)
+end
+
+
+function SimplePlot.Plot(s::Data1D;opts...)
+    return SimplePlot.Plot(ind(s),val(s),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
+end
+
 
 end
