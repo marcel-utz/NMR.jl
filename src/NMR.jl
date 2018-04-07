@@ -10,6 +10,7 @@ module NMR
    include("SpinSim.jl")
    include("Bruker.jl")
    include("DataSet.jl")
+   include("AutoPhase.jl")
 
    export SimpleGraphics
    export Scaling
@@ -20,5 +21,6 @@ module NMR
    export LinearPredict
    export SimplePlot
    export Bruker
+   export AutoPhase
 
 end

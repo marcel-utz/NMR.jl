@@ -2,7 +2,7 @@ module DataSet
 
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
-export integral
+export integral,derivative
 
 import NMR.SimplePlot
 
@@ -132,8 +132,21 @@ function integral(spect::Data1D)
 end
 
 
+"""
+`derivative(spect::Data1D)` computes the derivative of `spect` and returns
+it as another Data1D object
+"""
+function derivative(spect::Data1D)
+    d=similar(spect.dat)
+    inc=(spect.istop-spect.istart)/length(spect.dat)
+    d[1:(end-1)]=(spect.dat[2:end]-spect.dat[1:(end-1)] )/inc
+    d[end]=d[end-1]
+    return Data1D(d,spect.istop,spect.istart)
+end
+
+
 function SimplePlot.Plot(s::Data1D;opts...)
-    return SimplePlot.Plot(ind(s),val(s),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
+    return SimplePlot.Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
 end
 
 
