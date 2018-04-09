@@ -2,7 +2,7 @@ module DataSet
 
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
-export integral,derivative
+export integral,derivative,set!
 
 import NMR.SimplePlot
 
@@ -148,6 +148,14 @@ end
 function SimplePlot.Plot(s::Data1D;opts...)
     return SimplePlot.Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
 end
+
+
+function set!(spect::Data1D,start,stop,value=0)
+    rge=ind2pos(spect,start):ind2pos(spect,stop)
+    spect.dat[rge]=value
+end
+
+
 
 
 end

@@ -33,9 +33,17 @@ function goalfun(x,spect,γ=1.e-5)
     return entropy(derivative(c))+γ*penalty(real.(val(c)));
 end
 
-function AutoPhaseCorrect(spect::Data1D;verbose=false)
+"""
+`AutoPhaseCorrect(spect::Data1D;verbose=false)`
+performs zero- and first-order phase correction of `spect`
+using a minimum entropy algorithm  by Chen et al. in
+*Journal of Magnetic Resonance* **158** (2002) 164–168.
+It uses the Nelder-Mead algorithm, as implemented in the `Optim.jl`
+package.
+"""
+function AutoPhaseCorrect(spect::Data1D;verbose=false,γ=1.e-5)
   piv=(spect.istart+spect.istop)/2
-  result=optimize(x->goalfun(x,spect),[π/2,-0.1],NelderMead());
+  result=optimize(x->goalfun(x,spect,γ),[π/2,-0.1],NelderMead());
   if verbose print(result) end;
   pc=Optim.minimizer(result);
   return PhaseCorrect(spect,Ph0=pc[1],Ph1=pc[2],Pivot=piv);
