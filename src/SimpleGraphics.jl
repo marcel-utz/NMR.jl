@@ -2,6 +2,8 @@
 
 module SimpleGraphics
 
+__precompile__(true)
+
 export 	toSVG, Show, Color, GraphicsElement, VertexList, GraphicsAttributes, Blank,
 				Group, Rectangle, Circle, Polygon, translate, translate!,
 	   		rotate, rotate!, transform, transform!,
