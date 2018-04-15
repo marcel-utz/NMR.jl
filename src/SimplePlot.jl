@@ -113,9 +113,10 @@ function Axes(xscale::NiceScale,yscale::NiceScale;
     SimpleGraphics.push!(g,Polygon(VertexList([-FrameW/2 yp; FrameW/2 yp]),FrameAttr))
 
     for x=xscale.niceMin:xscale.tickSpacing:xscale.niceMax
+      lbl=@sprintf("%.4g",x)
       xtick= FrameW*(Reverse[1] ? -1: 1)*scaled(x,xscale)
       SimpleGraphics.push!(g,Polygon(VertexList([xtick yp; xtick yp+tickLength]),TickAttr))
-      SimpleGraphics.push!(g,TextElement(VertexList([xtick yp-FontSize]),"$x",xAxesLabelAttr))
+      SimpleGraphics.push!(g,TextElement(VertexList([xtick yp-FontSize]),"$lbl",xAxesLabelAttr))
     end
 
     if xlabel != ""
@@ -128,9 +129,10 @@ function Axes(xscale::NiceScale,yscale::NiceScale;
     xp = FrameW*(scaled(yAxisPos,xscale))
     SimpleGraphics.push!(g,Polygon(VertexList([xp -FrameH/2; xp FrameH/2]),FrameAttr))
     for y=yscale.niceMin:yscale.tickSpacing:yscale.niceMax
+      lbl=@sprintf("%.4g",y)
       ytick= FrameH*(Reverse[2] ? -1 : 1)*scaled(y,yscale)
       SimpleGraphics.push!(g,Polygon(VertexList([xp ytick ; xp+tickLength ytick]),TickAttr))
-      SimpleGraphics.push!(g,TextElement(VertexList([xp-FontSize/2 ytick+2]),"$y",yAxesLabelAttr))
+      SimpleGraphics.push!(g,TextElement(VertexList([xp-FontSize/2 ytick+2]),"$lbl",yAxesLabelAttr))
     end
 
     if ylabel != ""

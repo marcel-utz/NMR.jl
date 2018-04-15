@@ -155,7 +155,30 @@ function set!(spect::Data1D,start,stop,value=0)
     spect.dat[rge]=value
 end
 
+import Base.*, Base./, Base.+,Base.-
 
+function *(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat *= n;
+    return c
+end
 
+function /(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat /= n;
+    return c
+end
+
+function +(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat += n;
+    return c
+end
+
+function -(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat -= n;
+    return c
+end
 
 #end
