@@ -1,13 +1,9 @@
-module SpinSim
+#module SpinSim
 
-using NMR.PauliMatrix
+#using NMR.PauliMatrix
 
 export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
        Commutator,Trc,RungeKutta,Propagate
-
-function __init__()
-  println(STDERR,"Module SpinSim (c)2017 mu")
-end
 
 function Kron{T1,T2}(A::Array{T1,2},B::Array{T2,2})
     (p,q)=size(A)
@@ -317,4 +313,4 @@ end
 
 
 
-end
+#end
