@@ -1,10 +1,10 @@
-module DataSet
+#module DataSet
 
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
 
-import NMR.SimplePlot
+#import NMR.SimplePlot
 
 
 # Data structures for storing digitised data sets
@@ -145,8 +145,8 @@ function derivative(spect::Data1D)
 end
 
 
-function SimplePlot.Plot(s::Data1D;opts...)
-    return SimplePlot.Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
+function Plot(s::Data1D;opts...)
+    return Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
 end
 
 
@@ -158,4 +158,4 @@ end
 
 
 
-end
+#end

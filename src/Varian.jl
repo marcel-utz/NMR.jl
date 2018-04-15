@@ -1,6 +1,8 @@
-module Varian
+#module Varian
 
-type Header
+export readVarianFID
+
+type VarianHeader
     nblocks::Int32
     ntraces::Int32
     np::Int32
@@ -18,11 +20,11 @@ type Header
     scomplex::Bool
     shyper::Bool
 
-    Header() = new()
+    VarianHeader() = new()
 end
 
 function readHeader(f::IOStream)
-    v=Header()
+    v=VarianHeader()
     for k in fieldnames(v)[1:9]
         setfield!(v,k, ntoh(read(f,typeof(getfield(v,k)))))
     end
@@ -61,8 +63,8 @@ function readBlockHeader(f::IOStream)
 end
 
 
-function readData(f::IOStream)
-    a=readHeader(f)
+function readVarianFID(f::IOStream)
+    a=readVarianHeader(f)
     # println(a)
     data = a.sfloat ? Float32[] : Int32[]
     for k=1:a.nblocks
@@ -76,7 +78,7 @@ function readData(f::IOStream)
     return data[1:2:end]-im*data[2:2:end]
 end
 
-function readData(s::String)
+function readVarianFID(s::String)
     f=open(s,"r")
     fid=readData(f)
     close(f)
@@ -84,4 +86,4 @@ function readData(s::String)
 end
 
 
-end # module Varian
+#end # module Varian

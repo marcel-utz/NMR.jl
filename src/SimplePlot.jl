@@ -1,13 +1,9 @@
-module SimplePlot
+#module SimplePlot
 
-using NMR.Scaling
+#using NMR.Scaling
 using NMR.SimpleGraphics
 
 export Plot, Axes, Frame, Show, ContourPlot
-
-function __init__()
-  println(STDERR,"Module SimplePlot (c)2017 mu")
-end
 
 const FrameHdef = 700
 const FrameWdef = 1000
@@ -215,4 +211,4 @@ end
 
 
 
-end # SimplePlot
+#end # SimplePlot
