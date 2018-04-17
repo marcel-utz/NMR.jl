@@ -1,4 +1,4 @@
-module PauliMatrix
+#module PauliMatrix
 
 export Sx,Sy,Sz,Sp,Sm,Id
 
@@ -9,4 +9,4 @@ Sp = Sx+im*Sy;
 Sm = Sx-im*Sy;
 Id = sparse([1 0;0 1]);
 
-end
+#end

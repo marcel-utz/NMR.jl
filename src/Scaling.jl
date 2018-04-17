@@ -1,10 +1,7 @@
-module Scaling
+#module Scaling
 
 export NiceScale, scaled
 
-function __init__()
-  println(STDERR,"Module Scaling (c)2017 mu")
-end
 
 floorx(x) = x<0 ? ceil(x) : floor(x)
 ceilx(x) = x<0 ? floor(x) : ceil(x)
@@ -66,4 +63,4 @@ end
 scaled(x::Real,n::NiceScale) = (x-n.xoffset)/n.xfact
 
 
-end # Scaling
+#end # Scaling

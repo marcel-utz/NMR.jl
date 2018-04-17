@@ -1,8 +1,8 @@
-module Contour
+#module Contour
 
 import NMR.SimpleGraphics
-using NMR.Scaling
-using NMR.SimplePlot
+#using NMR.Scaling
+#using NMR.SimplePlot
 
 export ContourPlot
 
@@ -251,4 +251,4 @@ end
 
 
 
-end # module Contour
+#end # module Contour

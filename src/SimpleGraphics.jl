@@ -2,10 +2,12 @@
 
 module SimpleGraphics
 
+__precompile__(true)
+
 export 	toSVG, Show, Color, GraphicsElement, VertexList, GraphicsAttributes, Blank,
 				Group, Rectangle, Circle, Polygon, translate, translate!,
 	   		rotate, rotate!, transform, transform!,
-				centreOfGravity, TextElement, push!,  maxExtents, Export
+				centreOfGravity, TextElement, maxExtents, Export
 
 abstract type GraphicsElement end
 const GraphicsAttributes = Dict{String,Any}

@@ -1,10 +1,10 @@
-module DataSet
+#module DataSet
 
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
 
-import NMR.SimplePlot
+#import NMR.SimplePlot
 
 
 # Data structures for storing digitised data sets
@@ -94,7 +94,7 @@ by S. Golotvin, A. Williams, J. Magn. Reson. 146 (2000) 122-125.
 Note that if the input data is complex, the imaginary part is ignored,
 and the result is always real.
 """
-function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5)
+function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5,verbose=false)
 
     out=Data1D(real.(spect.dat),spect.istart,spect.istop);
     n=length(out.dat)
@@ -107,14 +107,14 @@ function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5)
     select=[abs(std(out.dat[(k-wdw):(k+wdw)])) < kfactor*mindev for k=(wdw+1):(n-wdw)]
 
     pts=((wdw+1):(n-wdw))[select];
-    println("Fitting $(length(pts)) Points.")
+    verbose && println("Fitting $(length(pts)) Points.")
 
     # polynomial fitting
     coeffs=polyfit(pts/n,out.dat[pts],order)
-    println("Coefficients: $coeffs")
+    verbose && println("Coefficients: $coeffs")
 
     res=sum(abs.(out.dat[pts]-horner(pts/n,coeffs)))
-    println("Residual: $res")
+    verbose && println("Residual: $res")
 
     out.dat .-= horner(collect(1:n)/n,coeffs)
 
@@ -145,8 +145,8 @@ function derivative(spect::Data1D)
 end
 
 
-function SimplePlot.Plot(s::Data1D;opts...)
-    return SimplePlot.Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
+function Plot(s::Data1D;opts...)
+    return Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
 end
 
 
@@ -155,7 +155,30 @@ function set!(spect::Data1D,start,stop,value=0)
     spect.dat[rge]=value
 end
 
+import Base.*, Base./, Base.+,Base.-
 
-
-
+function *(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat *= n;
+    return c
 end
+
+function /(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat /= n;
+    return c
+end
+
+function +(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat += n;
+    return c
+end
+
+function -(d::Data1D,n::Number)
+    c=deepcopy(d);
+    c.dat -= n;
+    return c
+end
+
+#end

@@ -1,10 +1,6 @@
-module LinearPredict
+#module LinearPredict
 
   export linPred,linPred2
-
-  function __init__()
-    println(STDERR,"Module LinearPredict (c)2017 mu")
-  end
 
   function Toeplitz(a::Array{Complex{Float64},1})
          m=length(a)
@@ -42,4 +38,4 @@ module LinearPredict
     return(ap)
   end
 
-end
+#end

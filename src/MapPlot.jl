@@ -1,8 +1,8 @@
-module MapPlot
+#module MapPlot
 
 import NMR.SimpleGraphics
-using NMR.Scaling
-using NMR.SimplePlot
+#using NMR.Scaling
+#using NMR.SimplePlot
 
 export Spy
 
@@ -97,4 +97,4 @@ end
 
 
 
-end
+#end
