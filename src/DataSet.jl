@@ -137,11 +137,12 @@ end
 it as another Data1D object
 """
 function derivative(spect::Data1D)
-    d=similar(spect.dat)
+    s=spect.dat
     inc=(spect.istop-spect.istart)/length(spect.dat)
-    d[1:(end-1)]=(spect.dat[2:end]-spect.dat[1:(end-1)] )/inc
-    d[end]=d[end-1]
-    return Data1D(d,spect.istop,spect.istart)
+#    d[1:(end-1)]=(spect.dat[2:end]-spect.dat[1:(end-1)] )/inc
+#    d[end]=d[end-1]
+    d = 1./12*(8*[s[2:end];0]-8*[0;s[1:(end-1)]] + [s[3:end];0;0] - [0;0;s[1:(end-2)]] )/inc
+    return Data1D(d,spect.istart,spect.istop)
 end
 
 
