@@ -23,7 +23,7 @@ type VarianHeader
     VarianHeader() = new()
 end
 
-function readHeader(f::IOStream)
+function readVarianHeader(f::IOStream)
     v=VarianHeader()
     for k in fieldnames(v)[1:9]
         setfield!(v,k, ntoh(read(f,typeof(getfield(v,k)))))
@@ -80,7 +80,7 @@ end
 
 function readVarianFID(s::String)
     f=open(s,"r")
-    fid=readData(f)
+    fid=readVarianFID(f)
     close(f)
     return fid
 end
