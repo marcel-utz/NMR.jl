@@ -29,7 +29,7 @@ function pos2ind(d::Data1D,pos::Integer)
 end
 
 function ind(d::Data1D)
-   return d.istart+((1:length(d.dat))-1)/(length(d.dat)-1)*(d.istop-d.istart)
+   return d.istart+((1:length(d.dat))-1)/(length(d.dat))*(d.istop-d.istart)
 end
 
 function val(d::Data1D)
@@ -37,7 +37,10 @@ function val(d::Data1D)
 end
 
 function val(d::Data1D,ind)
-    return d.dat[ind2pos(d,ind)]
+    i1=(ind-d.istart)*length(d.dat)/(d.istop-d.istart)
+    p1=floor(Int64,i1)+1
+    ic=i1-p1+1
+    return ((1-ic)*d.dat[p1]+ic*d.dat[p1+1])
 end
 
 function cut(d::Data1D,i1,i2)
