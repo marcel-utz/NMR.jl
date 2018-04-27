@@ -36,6 +36,10 @@ function val(d::Data1D)
     return d.dat
 end
 
+function val(d::Data1D,ind)
+    return d.dat[ind2pos(d,ind)]
+end
+
 function cut(d::Data1D,i1,i2)
     p1=ind2pos(d,i1)
     p2=ind2pos(d,i2)
