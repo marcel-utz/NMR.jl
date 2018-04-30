@@ -7,21 +7,21 @@ type PeakStruct
     widths::Array{Float64,1}
     intensities::Array{Float64,1}
     deconvolution::Data1D
-  end
+end
 
 """
 `smooth(d::Data1D,n=10)`
 returns a smoothed version of the input data set `d`, using
 convolution with a Gaussian peak.
 """
-  function smooth(d::Data1D,n=10)
+function smooth(d::Data1D,n=10)
       l=length(d.dat);
       kern=[exp(-5*j^2/n^2) for j=-n:n]
       kern /= sum(kern)
       return(Data1D( [sum([d.dat[k+j]*kern[j+n+1] for j=-n:n]) for k=(n+1):(l-n)],pos2ind(d,n+1),pos2ind(d,l-n-1)));
-  end
+end
 
-  lorentzian(x0::Float64,σ::Float64,x::Float64) = 1./π*sqrt(σ)/(1.+σ*(x-x0)^2)
+lorentzian(x0::Float64,σ::Float64,x::Float64) = 1./π*sqrt(σ)/(1.+σ*(x-x0)^2)
 
 """
 `peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)`
@@ -51,7 +51,7 @@ proportional to the underlying concentrations in an NMR spectrum.
 Finally, `deconvolution` contains the deconvoluted approximation to the
 original input signal.
 """
-  function peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
+function peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
     d=smooth(dinput)
     dr=derivative(d);
     n=length(d.dat)
