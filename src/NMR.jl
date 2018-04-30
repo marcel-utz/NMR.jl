@@ -12,6 +12,7 @@ module NMR
    include("MapPlot.jl")
    include("PauliMatrix.jl")
    include("SpinSim.jl")
+   include("Peaks.jl")
 
    include("Bruker.jl")
    include("Varian.jl")
