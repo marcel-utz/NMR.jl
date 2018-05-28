@@ -14,11 +14,15 @@ export integral,derivative,set!
 # - Position: the numerical position (integer) of the data point in
 #           the internal storage array
 
+
+
 type Data1D{Tdata,Tindex}
    dat::Array{Tdata,1}
    istart::Tindex
    istop::Tindex
 end
+
+
 
 function ind2pos(d::Data1D,ind)
     return round(Int64,(ind-d.istart)*length(d.dat)/(d.istop-d.istart))+1
