@@ -43,7 +43,7 @@ function _set_root(r,s)
  end
 
 """
-'function NMRpeaksByName(r::Regex;verbose=true,solvent=r\".*\",nucleus=r\"1H\",frequency=r\".*\",pH=r\".*\")'
+'function NMRpeaksByName(r::Regex;verbose=true,solvent=<regex>,nucleus=<regex>,frequency=<regex>,pH=<regex>)'
 retrieves peak location and intensity information for the first compound in the HMDB
 whose name matches 'r'.
 """
