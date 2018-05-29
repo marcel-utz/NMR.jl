@@ -43,11 +43,11 @@ function _set_root(r,s)
  end
 
 """
-'function PeaksHMDB(r::Regex;verbose=true,solvent=r\".*\",nucleus=r\"1H\",frequency=r\".*\",pH=r\".*\")'
+'function NMRpeaksByName(r::Regex;verbose=true,solvent=r\".*\",nucleus=r\"1H\",frequency=r\".*\",pH=r\".*\")'
 retrieves peak location and intensity information for the first compound in the HMDB
 whose name matches 'r'.
 """
-function PeaksByName(r::Regex;verbose=true,solvent=r".*",nucleus=r"1H",frequency=r".*",pH=r".*")
+function NMRpeaksByName(r::Regex;verbose=true,solvent=r".*",nucleus=r"1H",frequency=r".*",pH=r".*")
 
     # find the first match of the regular expression among metabolite names
     targets=Iterators.filter(x->ismatch(r, content(find_element(x,"name"))), child_elements(root(hmdb_root))) ;
@@ -104,6 +104,54 @@ function PeaksByName(r::Regex;verbose=true,solvent=r".*",nucleus=r"1H",frequency
     end
 end
 
+function parseNil(k::String)
+    if k=="" return 0.0
+    else
+        return parse(Float64,k)
+    end
+end
+
+
+
+"""
+`function NMRpeaksByFile(fn;verbose=false)`:
+retrieves NMR peaks from HMDB by spectrum file name `fn`.
+"""
+function NMRpeaksByFile(fn;verbose=false)
+
+        spectrum=root(parse_file(HMDB_dir*"/hmdb_spectra_xml/$(fn)"))
+
+        peaks=find_element(spectrum,"nmr-one-d-peaks");
+        snucleus=content(find_element(spectrum,"nucleus"));
+        ssolvent=content(find_element(spectrum,"solvent"));
+        sfreq=content(find_element(spectrum,"frequency"));
+        spH=content(find_element(spectrum,"sample-ph"));
+        spect_id=content(find_element(spectrum,"id"));
+        db_id=content(find_element(spectrum,"database-id"));
+
+        verbose && @printf("Nucleus: %s, Solvent: %s, Frequency: %s, pH: %s\n",snucleus,ssolvent,sfreq,spH)
+        verbose && @printf("% 7s % 8s\n","Shift","Int");
+        verbose && @printf("----------------\n")
+        if verbose
+            for x in child_elements(peaks)
+                @printf("% 7s %8s\n",content(find_element(x,"chemical-shift")),content(find_element(x,"intensity")));
+            end
+        end
+
+        targets=Iterators.filter(x->db_id==content(find_element(x,"accession")), child_elements(root(hmdb_root))) ;
+        if isempty(targets)
+          sname="<Not found>"
+        else
+          sname=content(find_element(first(targets),"name"));
+        end
+
+        pks=[parseNil(content(find_element(x,"chemical-shift"))) for x in child_elements(peaks)];
+        ints=[parseNil(content(find_element(x,"intensity"))) for x in child_elements(peaks)];
+
+        free(spectrum)
+        return HMDBpeaks(pks,ints,name=sname,spectID=spect_id,accession=db_id,nucleus=snucleus,frequency=sfreq,solvent=ssolvent,pH=spH)
+
+end
 
 
 end
