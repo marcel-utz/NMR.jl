@@ -2,6 +2,7 @@
 
 #using NMR.Scaling
 using NMR.SimpleGraphics
+using Printf
 
 export Plot, Axes, Frame, Show, ContourPlot
 
@@ -51,7 +52,7 @@ function Frame(xscale::NiceScale,yscale::NiceScale;
    # create Frame Ticks
    for x in xscale
      lbl=@sprintf("%.4g",x)
-     xtick=FrameW*(Reverse[1]?-1:1)*scaled(x,xscale)
+     xtick=FrameW*(Reverse[1] ? -1 : 1)*scaled(x,xscale)
     #  println( (x,xtick) )
      SimpleGraphics.push!(g,Polygon(VertexList([xtick -FrameH/2 ; xtick -FrameH/2+tickLength]),TickAttr))
      SimpleGraphics.push!(g,TextElement(VertexList([xtick -FrameH/2-FontSize]),"$lbl",xAxesLabelAttr))
@@ -64,12 +65,12 @@ function Frame(xscale::NiceScale,yscale::NiceScale;
      SimpleGraphics.push!(g,TextElement(VertexList([0. yp-3*FontSize]),xlabel,AxesLabelAttr))
    end
    if ylabel != ""
-     SimpleGraphics.push!(g,TextElement(VertexList([xp-4.*FontSize 0.]),ylabel,AxesLabelAttr,-90.0))
+     SimpleGraphics.push!(g,TextElement(VertexList([xp-4.0*FontSize 0.0]),ylabel,AxesLabelAttr,-90.0))
    end
 
    for y in yscale
      lbl=@sprintf("%.4g",y)
-     ytick=FrameH*(Reverse[2]?-1:1)*(scaled(y,yscale))
+     ytick=FrameH*(Reverse[2] ? -1 : 1)*(scaled(y,yscale))
      SimpleGraphics.push!(g,Polygon(VertexList([-FrameW/2 ytick ; -FrameW/2+tickLength ytick]),TickAttr))
      SimpleGraphics.push!(g,TextElement(VertexList([-FrameW/2-FontSize/2 ytick+2]),"$lbl",yAxesLabelAttr))
    end
@@ -114,7 +115,7 @@ function Axes(xscale::NiceScale,yscale::NiceScale;
 
     for x=xscale.niceMin:xscale.tickSpacing:xscale.niceMax
       lbl=@sprintf("%.4g",x)
-      xtick= FrameW*(Reverse[1] ? -1: 1)*scaled(x,xscale)
+      xtick= FrameW*(Reverse[1] ? -1 : 1)*scaled(x,xscale)
       SimpleGraphics.push!(g,Polygon(VertexList([xtick yp; xtick yp+tickLength]),TickAttr))
       SimpleGraphics.push!(g,TextElement(VertexList([xtick yp-FontSize]),"$lbl",xAxesLabelAttr))
     end
@@ -136,7 +137,7 @@ function Axes(xscale::NiceScale,yscale::NiceScale;
     end
 
     if ylabel != ""
-      SimpleGraphics.push!(g,TextElement(VertexList([xp-4.*FontSize 0.]),ylabel,AxesLabelAttr,-90.0))
+	    SimpleGraphics.push!(g,TextElement(VertexList([xp-4.0*FontSize 0.0]),ylabel,AxesLabelAttr,-90.0))
     end
 
   end
@@ -146,7 +147,7 @@ end
 
 
 
-function Plot{T}(xrange,pts::Array{T,2};
+function Plot(xrange,pts::Array{T,2};
               g=Group(),
               frame=true,
               axes=false,
@@ -156,7 +157,7 @@ function Plot{T}(xrange,pts::Array{T,2};
               Reverse=[false,false],
               style=GraphicsAttributes([]),
               FrameW=FrameWdef,
-              FrameH=FrameHdef)
+	      FrameH=FrameHdef) where {T} 
 
     revrs=Reverse
     if frame g=Frame(xscale,yscale,FrameW=FrameW,FrameH=FrameH,Reverse=revrs) end

@@ -17,7 +17,7 @@ const VertexList = Array{Float32,2}
 # Blank: a NOP GraphicsElement
 # =======================================================
 
-type Blank <: GraphicsElement
+abstract type Blank <: GraphicsElement
 end
 
 
@@ -25,7 +25,7 @@ end
 # Groups
 # =======================================================
 
-type Group <: GraphicsElement
+struct Group <: GraphicsElement
 	elements::Array{GraphicsElement,1}
 	attr::GraphicsAttributes
 	clipPath::GraphicsElement
@@ -45,7 +45,7 @@ end
 
 #  <rect x="50" y="20" width="150" height="150"  style="fill:blue;stroke:pink;stroke-width:5;fill-opacity:0.1;stroke-opacity:0.9" />
 
-type Rectangle <: GraphicsElement
+struct Rectangle <: GraphicsElement
 	vertices::VertexList
 	attr::GraphicsAttributes
 
@@ -59,7 +59,8 @@ end
 # Polygons and Polylines
 # =======================================================
 
-type Polygon <: GraphicsElement
+struct
+	Polygon <: GraphicsElement
 	vertices::VertexList
 	attr::GraphicsAttributes
 	Polygon(list::VertexList,attr=GraphicsAttributes([]))=new(list,attr)
@@ -69,7 +70,7 @@ end
 # Ellipses and Circles
 # =======================================================
 
-type Circle <: GraphicsElement
+struct Circle <: GraphicsElement
 	vertices::VertexList
 	attr::GraphicsAttributes
 	Circle(list::VertexList) = new(list,GraphicsAttributes([]) )
@@ -80,7 +81,7 @@ end
 # Text elements
 # =======================================================
 
-type TextElement <: GraphicsElement
+struct TextElement <: GraphicsElement
 	vertices::VertexList
 	text::String
 	orientation::Float32
@@ -96,7 +97,7 @@ end
 # The following function maps vertices onto the SVG coordinate system
 
 function mapSVG(v::VertexList)
-	 const metric = Float32[1 0 ; 0 -1]
+	 metric = Float32[1 0 ; 0 -1]
 	 return v*metric
 end
 
@@ -262,7 +263,7 @@ function maxExtents(v::VertexList,def=VertexList([0 0 ; 0 0]))
 end
 
 function maxExtents(g::GraphicsElement,def=VertexList([0 0 ; 0 0]))
-	v= (:vertices in fieldnames(g))? g.vertices : VertexList([])
+	v= (:vertices in fieldnames(g)) ? g.vertices : VertexList([])
 	return maxExtents(v,def)
 end
 

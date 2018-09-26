@@ -19,7 +19,7 @@ module NMR
    include("Varian.jl")
 
   function __init__()
-    println(STDERR,"Module NMR v0.2\n(c)mu 2018");
+    println("Module NMR v0.3\n(c)mu 2018");
   end
 
 end

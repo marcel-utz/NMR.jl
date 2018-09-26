@@ -1,5 +1,9 @@
 #module DataSet
 
+using AbstractFFTs
+using FFTW
+using Statistics
+
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
@@ -16,13 +20,11 @@ export integral,derivative,set!
 
 
 
-type Data1D{Tdata,Tindex}
+mutable struct Data1D{Tdata,Tindex}
    dat::Array{Tdata,1}
    istart::Tindex
    istop::Tindex
 end
-
-
 
 function ind2pos(d::Data1D,ind)
     return round(Int64,(ind-d.istart)*length(d.dat)/(d.istop-d.istart))+1
@@ -33,7 +35,7 @@ function pos2ind(d::Data1D,pos::Integer)
 end
 
 function ind(d::Data1D)
-   return d.istart+((1:length(d.dat))-1)/(length(d.dat))*(d.istop-d.istart)
+	return d.istart:((d.istop-d.istart)/(length(d.dat)-1)):d.istop
 end
 
 function val(d::Data1D)
@@ -89,10 +91,10 @@ end
 polyfit(x::Vector, y::Vector, deg::Int) = pinv(collect(v ^ p for v in x, p in 0:deg)) * y
 
 function horner(x::Vector, c::Vector)
-    r=ones(x)*c[end]
+	r=ones(length(x))*c[end]
     for k=(length(c)-1):-1:1
         r.*=x
-        r+=c[k]
+        r.+=c[k]
     end
     return r
 end
@@ -152,7 +154,7 @@ function derivative(spect::Data1D)
     inc=(spect.istop-spect.istart)/length(spect.dat)
 #    d[1:(end-1)]=(spect.dat[2:end]-spect.dat[1:(end-1)] )/inc
 #    d[end]=d[end-1]
-    d = 1./12*(8*[s[2:end];0]-8*[0;s[1:(end-1)]] + [s[3:end];0;0] - [0;0;s[1:(end-2)]] )/inc
+    d = 1.0/12*(8*[s[2:end];0]-8*[0;s[1:(end-1)]] + [s[3:end];0;0] - [0;0;s[1:(end-2)]] )/inc
     return Data1D(d,spect.istart,spect.istop)
 end
 

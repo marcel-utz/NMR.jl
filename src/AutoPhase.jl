@@ -23,7 +23,7 @@ end
 # penalty(x) computes the sum of squares of all negative points in x
 function penalty(x)
     x /= sum(abs.(x))
-    return sum([k<0.0?k*k:0.0 for k in x])
+    return sum([k<0.0 ? k*k : 0.0 for k in x])
 end
 
 # this is the minimisation target for automatic phase correction

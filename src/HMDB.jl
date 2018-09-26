@@ -2,11 +2,12 @@
 module HMDB
 
 using LightXML
+using Printf
 
 global HMDB_dir
 global hmdb_root
 
-type HMDBpeaks
+struct HMDBpeaks
     spectID::String
     accession::String
     name::String

@@ -1,19 +1,20 @@
 #module MapPlot
 
 import NMR.SimpleGraphics
+using SparseArrays
 #using NMR.Scaling
 #using NMR.SimplePlot
 
 export Spy
 
-function Spy{T}(A::AbstractSparseArray{T,Int64};
+function Spy(A::AbstractSparseArray{T,Int64};
     g=SimpleGraphics.Group(),
     frame=true,
     axes=false,
     show=true,
     Reverse=[false,true],
     FrameW=1000,
-    FrameH=1000)
+    FrameH=1000) where {T}
 
   (n,m)=size(A);
   xrange = 1:m;
@@ -51,14 +52,14 @@ function Spy{T}(A::AbstractSparseArray{T,Int64};
   return(g)
 end
 
-function Pcolor{T}(A::Array{T,2};
+function Pcolor(A::Array{T,2};
     g=SimpleGraphics.Group(),
     frame=true,
     axes=false,
     show=true,
     Reverse=[false,true],
     FrameW=1000,
-    FrameH=1000)
+    FrameH=1000) where {T}
 
   (n,m)=size(A);
   xrange = 1:m;

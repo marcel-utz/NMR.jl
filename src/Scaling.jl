@@ -6,7 +6,7 @@ export NiceScale, scaled
 floorx(x) = x<0 ? ceil(x) : floor(x)
 ceilx(x) = x<0 ? floor(x) : ceil(x)
 
-type NiceScale
+struct NiceScale
   minPoint::Float32
   maxPoint::Float32
   maxTicks::Float32
@@ -33,9 +33,10 @@ end
 
 end # NiceScale
 
-Base.start(n::NiceScale) = n.niceMin
-Base.next(n::NiceScale,v) = (v,v+n.tickSpacing)
-Base.done(n::NiceScale,v) = v>n.niceMax
+Base.iterate(n::NiceScale,v=1) = v>n.niceMax ? nothing : (v,v+n.tickSpacing)
+# Base.start(n::NiceScale) = n.niceMin
+# Base.next(n::NiceScale,v) = (v,v+n.tickSpacing)
+# Base.done(n::NiceScale,v) = v>n.niceMax
 Base.length(n::NiceScale) = Int64((n.niceMax-n.niceMin)/n.tickSpacing)+1
 
 function niceNum(range::Real,round::Bool=false)
@@ -56,7 +57,7 @@ function niceNum(range::Real,round::Bool=false)
      end
    end
 
-   return niceFraction * 10.^exponent
+   return niceFraction * 10.0^exponent
 
 end
 

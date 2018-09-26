@@ -1,7 +1,7 @@
 
 export peaks, PeakStruct
 
-type PeakStruct
+struct PeakStruct
     positions::Array{Float64,1}
     heights::Array{Float64,1}
     widths::Array{Float64,1}
@@ -21,7 +21,7 @@ function smooth(d::Data1D,n=10)
       return(Data1D( [sum([d.dat[k+j]*kern[j+n+1] for j=-n:n]) for k=(n+1):(l-n)],pos2ind(d,n+1),pos2ind(d,l-n-1)));
 end
 
-lorentzian(x0::Float64,σ::Float64,x::Float64) = 1./π*sqrt(σ)/(1.+σ*(x-x0)^2)
+lorentzian(x0::Float64,σ::Float64,x::Float64) = 1.0/π*sqrt(σ)/(1.0+σ*(x-x0)^2)
 
 """
 `peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)`

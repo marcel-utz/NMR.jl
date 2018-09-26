@@ -2,7 +2,7 @@
 
 export readVarianFID
 
-type VarianHeader
+mutable struct VarianHeader
     nblocks::Int32
     ntraces::Int32
     np::Int32
@@ -25,7 +25,7 @@ end
 
 function readVarianHeader(f::IOStream)
     v=VarianHeader()
-    for k in fieldnames(v)[1:9]
+    for k in fieldnames(VarianHeader)[1:9]
         setfield!(v,k, ntoh(read(f,typeof(getfield(v,k)))))
     end
 
@@ -39,7 +39,7 @@ function readVarianHeader(f::IOStream)
     return v
 end
 
-type BlockHeader
+mutable struct BlockHeader
     scale::Int16
     bstatus::Int16
     index::Int16
@@ -56,7 +56,7 @@ end
 
 function readBlockHeader(f::IOStream)
     v=BlockHeader()
-    for k in fieldnames(v)
+    for k in fieldnames(BlockHeader)
         setfield!(v,k, ntoh(read(f,typeof(getfield(v,k)))))
     end
     return v
@@ -70,9 +70,9 @@ function readVarianFID(f::IOStream)
     for k=1:a.nblocks
         b=readBlockHeader(f)
         if a.sfloat
-            append!(data,ntoh.(read(f,Float32,a.np)))
+		append!(data,ntoh.([read(f,Float32) for k=1:a.np]))
         else
-            append!(data,ntoh.(read(f,Int32,a.np)))
+		append!(data,ntoh.([read(f,Int32) for k=1:a.np]))
         end
     end
     return data[1:2:end]-im*data[2:2:end]

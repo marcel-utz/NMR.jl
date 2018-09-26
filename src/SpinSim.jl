@@ -1,11 +1,12 @@
 #module SpinSim
 
 #using NMR.PauliMatrix
+using LinearAlgebra
 
 export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
        Commutator,Trc,RungeKutta,Propagate
 
-function Kron{T1,T2}(A::Array{T1,2},B::Array{T2,2})
+function Kron(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     T=promote_type(T1,T2)
@@ -16,7 +17,7 @@ function Kron{T1,T2}(A::Array{T1,2},B::Array{T2,2})
     return(K)
 end
 
-function Kron{T1,T2}(A::Array{T1,2},B::Diagonal{T2})
+function Kron(A::Array{T1,2},B::Diagonal{T2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     T=promote_type(T1,T2)
@@ -31,7 +32,7 @@ function Kron{T1,T2}(A::Array{T1,2},B::Diagonal{T2})
     return(K)
 end
 
-function Kron{T1,T2}(A::AbstractSparseMatrix{T1,Int64},B::Diagonal{T2})
+function Kron(A::AbstractSparseMatrix{T1,Int64},B::Diagonal{T2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     T=promote_type(T1,T2)
@@ -42,7 +43,7 @@ function Kron{T1,T2}(A::AbstractSparseMatrix{T1,Int64},B::Diagonal{T2})
     return(K)
 end
 
-function Kron{T1,T2}(A::Diagonal{T1},B::Diagonal{T2})
+function Kron(A::Diagonal{T1},B::Diagonal{T2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     T=promote_type{T1,T2}
@@ -55,7 +56,7 @@ function Kron{T1,T2}(A::Diagonal{T1},B::Diagonal{T2})
     return(Diagonal(d))
 end
 
-function Kron{T1,T2}(A::Diagonal{T1},B::Array{T2,2})
+function Kron(A::Diagonal{T1},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A);
     (n,m)=size(B);
     T=promote_type(T1,T2)
@@ -66,7 +67,7 @@ function Kron{T1,T2}(A::Diagonal{T1},B::Array{T2,2})
     return(K)
 end
 
-function Kron{T1,T2}(A::Diagonal{T1},B::AbstractSparseMatrix{T2,Int64})
+function Kron(A::Diagonal{T1},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     (p,q)=size(A);
     (n,m)=size(B);
     T=promote_type(T1,T2)
@@ -77,7 +78,7 @@ function Kron{T1,T2}(A::Diagonal{T1},B::AbstractSparseMatrix{T2,Int64})
     return(K)
 end
 
-function Kron{T1,T2}(A::AbstractSparseMatrix{T1,Int64},B::Array{T2,2})
+function Kron(A::AbstractSparseMatrix{T1,Int64},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     T=promote_type(T1,T2)
@@ -88,7 +89,7 @@ function Kron{T1,T2}(A::AbstractSparseMatrix{T1,Int64},B::Array{T2,2})
     return(K)
 end
 
-function Kron{T1,T2}(A::AbstractSparseMatrix{T1,Int64},B::AbstractSparseMatrix{T2,Int64})
+function Kron(A::AbstractSparseMatrix{T1,Int64},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     T=promote_type(T1,T2)
@@ -108,7 +109,7 @@ function Kron{T1,T2}(A::AbstractSparseMatrix{T1,Int64},B::AbstractSparseMatrix{T
     return(sparse(M,N,v,p*n,q*m))
 end
 
-function Kron{T1,T2}(A::Array{T1,2},B::AbstractSparseMatrix{T2,Int64})
+function Kron(A::Array{T1,2},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     T=promote_type(T1,T2)
@@ -142,7 +143,7 @@ OpJstrong(n,k,l)=TwoSpinOp(n,Sx,k,Sx,l)+TwoSpinOp(n,Sy,k,Sy,l)+TwoSpinOp(n,Sz,k,
 OpJweak(n,k,l)=TwoSpinOp(n,Sz,k,Sz,l)
 
 
-function Commutator{T1,T2}(A::Array{T1,2},B::Array{T2,2})
+function Commutator(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
     p==q==n==m || throw(DimensionMismatch("arrays must be square and of the same size"))
@@ -160,7 +161,7 @@ function Commutator{T1,T2}(A::Array{T1,2},B::Array{T2,2})
     return K
 end
 
-function Commutator{T1,T2}(A::Array{T2,2},B::AbstractSparseMatrix{T1,Int64})
+function Commutator(A::Array{T2,2},B::AbstractSparseMatrix{T1,Int64}) where {T1,T2}
     (p,q)=size(A)
 #    (n,m)=size(B)
 #    if(!(p==q==n==m)) error("arrays must be square and of the same size") end
@@ -177,11 +178,11 @@ function Commutator{T1,T2}(A::Array{T2,2},B::AbstractSparseMatrix{T1,Int64})
     return C
 end
 
-Commutator{T1,T2}(B::AbstractSparseMatrix{T1,Int64},A::Array{T2,2}) = -Commutator(A,B)
+Commutator(B::AbstractSparseMatrix{T1,Int64},A::Array{T2,2}) where {T1,T2} = -Commutator(A,B)
 
 Commutator(A,B) =  A*B - B*A;
 
-function Trc{T1,T2}(A::Array{T1,2},B::Array{T2,2})
+function Trc(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     n,m=size(A)
     p,q=size(B)
     n==m==q==p || error("A and B must be of the same size")
@@ -191,7 +192,7 @@ end
 Trc(A,B) = trace(A*B)
 
 
-function Commutator!{T1,T2}(C::Array{T2,2},B::AbstractSparseMatrix{T1,Int64},A::Array{T2,2})
+function Commutator!(C::Array{T2,2},B::AbstractSparseMatrix{T1,Int64},A::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
 #    (n,m)=size(B)
 #    if(!(p==q==n==m)) error("arrays must be square and of the same size") end
@@ -210,7 +211,7 @@ function Commutator!{T1,T2}(C::Array{T2,2},B::AbstractSparseMatrix{T1,Int64},A::
 end
 
 
-function Commutator!{T1,T2}(C::Array{T2,2},B::Array{T1,2},A::Array{T2,2})
+function Commutator!(C::Array{T2,2},B::Array{T1,2},A::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
 #    (n,m)=size(B)
 #    if(!(p==q==n==m)) error("arrays must be square and of the same size") end
@@ -228,7 +229,7 @@ function Commutator!{T1,T2}(C::Array{T2,2},B::Array{T1,2},A::Array{T2,2})
     return C
 end
 
-function RungeKutta{T2}(dw::Real,n::Integer,H,rho0::Array{T2,2},t0::Real,obs;StepFactor=4)
+function RungeKutta(dw::Real,n::Integer,H,rho0::Array{T2,2},t0::Real,obs;StepFactor=4) where {T2}
    rho=rho0;
    t=t0;
    h=dw/StepFactor
@@ -288,8 +289,8 @@ function RungeKutta(dw::Real,n::Integer,H,rho0,t0::Real,obs;StepFactor=4)
 end
 
 
-function chop!{Ti,Tv}(A::SparseMatrixCSC{Ti,Tv})
-    const tol=1.e-14;
+function chop!(A::SparseMatrixCSC{Ti,Tv}) where {Ti,Tv}
+    tol=1.e-14;
     for k=1:length(A.nzval)
         if abs(A.nzval[k])<tol A.nzval[k]=0 end;
     end
