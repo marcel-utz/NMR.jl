@@ -34,7 +34,7 @@ peaks at the determined positions and with the determined curvatures.
 
 `peaks()` returns a data structure
 ```
-type PeakStruct
+struct PeakStruct
     positions::Array{Float64,1}
     heights::Array{Float64,1}
     widths::Array{Float64,1}
@@ -71,7 +71,7 @@ function peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
     # peak tip. More accurate locations and equivalent peak width
     # information is extracted from the resulting coefficients
 
-    dpeaks=ind2pos.(dinput,pos2ind.(dr,peaks)) # a hack to eliminate aligment differences
+    dpeaks=[ind2pos(dinput,pos2ind(dr,k)) for k in peaks] # a hack to eliminate aligment differences
     coeffs = [NMR.polyfit(δ*collect(-9:9),dinput.dat[(p-9):(p+9)],2)
                     for p in dpeaks]
 
@@ -79,7 +79,7 @@ function peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
     # line widths from the expansion coefficients
 
     σ=[abs(C[3]) for C in coeffs] ;    # inverse line widths
-    cpks=pos2ind.(dr,peaks)+[-0.5*C[2]/C[3] for C in coeffs]; # corrected peak positions
+    cpks=[pos2ind(dr,k) for k in peaks]+[-0.5*C[2]/C[3] for C in coeffs]; # corrected peak positions
     hpks=[C[1]-0.25*C[2]*C[2]/C[3] for C in coeffs]; # corrected peak heights
 
     # devonvolute the spectrum with Lorentzian peaks of the determined

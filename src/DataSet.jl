@@ -26,6 +26,7 @@ mutable struct Data1D{Tdata,Tindex}
    istop::Tindex
 end
 
+
 function ind2pos(d::Data1D,ind)
     return round(Int64,(ind-d.istart)*length(d.dat)/(d.istop-d.istart))+1
 end
@@ -173,25 +174,25 @@ import Base.*, Base./, Base.+,Base.-
 
 function *(d::Data1D,n::Number)
     c=deepcopy(d);
-    c.dat *= n;
+    c.dat .*= n;
     return c
 end
 
 function /(d::Data1D,n::Number)
     c=deepcopy(d);
-    c.dat /= n;
+    c.dat ./= n;
     return c
 end
 
 function +(d::Data1D,n::Number)
     c=deepcopy(d);
-    c.dat += n;
+    c.dat .+= n;
     return c
 end
 
 function -(d::Data1D,n::Number)
     c=deepcopy(d);
-    c.dat -= n;
+    c.dat .-= n;
     return c
 end
 
