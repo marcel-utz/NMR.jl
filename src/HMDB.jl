@@ -7,7 +7,7 @@ using Printf
 global HMDB_dir
 global hmdb_root
 
-struct HMDBpeaks
+mutable struct HMDBpeaks
     spectID::String
     accession::String
     name::String
