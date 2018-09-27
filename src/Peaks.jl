@@ -1,7 +1,7 @@
 
 export peaks, PeakStruct
 
-struct PeakStruct
+mutable struct PeakStruct
     positions::Array{Float64,1}
     heights::Array{Float64,1}
     widths::Array{Float64,1}
@@ -34,7 +34,7 @@ peaks at the determined positions and with the determined curvatures.
 
 `peaks()` returns a data structure
 ```
-type PeakStruct
+PeakStruct
     positions::Array{Float64,1}
     heights::Array{Float64,1}
     widths::Array{Float64,1}
