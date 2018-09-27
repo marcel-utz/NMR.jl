@@ -1,6 +1,6 @@
 module NMR
 
-   __precompile__(true);
+#   __precompile__(true);
 
    include("DataSet.jl")
    include("AutoPhase.jl")

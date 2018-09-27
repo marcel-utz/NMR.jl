@@ -1,6 +1,6 @@
 #module Contour
 
-import NMR.SimpleGraphics
+import .SimpleGraphics
 #using NMR.Scaling
 #using NMR.SimplePlot
 

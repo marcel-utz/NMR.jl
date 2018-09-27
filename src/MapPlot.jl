@@ -1,6 +1,6 @@
 #module MapPlot
 
-import NMR.SimpleGraphics
+import .SimpleGraphics
 using SparseArrays
 #using NMR.Scaling
 #using NMR.SimplePlot
