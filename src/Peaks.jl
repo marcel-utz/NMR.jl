@@ -1,4 +1,3 @@
-
 export peaks, PeakStruct
 
 mutable struct PeakStruct
