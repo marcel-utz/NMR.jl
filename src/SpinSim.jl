@@ -1,6 +1,7 @@
 #module SpinSim
 
 #using NMR.PauliMatrix
+using SparseArrays
 using LinearAlgebra
 
 export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
@@ -16,7 +17,6 @@ function Kron(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     end
     return(K)
 end
-
 function Kron(A::Array{T1,2},B::Diagonal{T2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
@@ -31,7 +31,6 @@ function Kron(A::Array{T1,2},B::Diagonal{T2}) where {T1,T2}
     end
     return(K)
 end
-
 function Kron(A::AbstractSparseMatrix{T1,Int64},B::Diagonal{T2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
@@ -42,7 +41,6 @@ function Kron(A::AbstractSparseMatrix{T1,Int64},B::Diagonal{T2}) where {T1,T2}
     end
     return(K)
 end
-
 function Kron(A::Diagonal{T1},B::Diagonal{T2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
@@ -55,7 +53,6 @@ function Kron(A::Diagonal{T1},B::Diagonal{T2}) where {T1,T2}
     end
     return(Diagonal(d))
 end
-
 function Kron(A::Diagonal{T1},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A);
     (n,m)=size(B);
@@ -66,7 +63,6 @@ function Kron(A::Diagonal{T1},B::Array{T2,2}) where {T1,T2}
     end
     return(K)
 end
-
 function Kron(A::Diagonal{T1},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     (p,q)=size(A);
     (n,m)=size(B);
@@ -77,7 +73,6 @@ function Kron(A::Diagonal{T1},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     end
     return(K)
 end
-
 function Kron(A::AbstractSparseMatrix{T1,Int64},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
@@ -88,7 +83,6 @@ function Kron(A::AbstractSparseMatrix{T1,Int64},B::Array{T2,2}) where {T1,T2}
     end
     return(K)
 end
-
 function Kron(A::AbstractSparseMatrix{T1,Int64},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
@@ -108,7 +102,6 @@ function Kron(A::AbstractSparseMatrix{T1,Int64},B::AbstractSparseMatrix{T2,Int64
     end
     return(sparse(M,N,v,p*n,q*m))
 end
-
 function Kron(A::Array{T1,2},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     (p,q)=size(A)
     (n,m)=size(B)
@@ -119,7 +112,6 @@ function Kron(A::Array{T1,2},B::AbstractSparseMatrix{T2,Int64}) where {T1,T2}
     end
     return(K)
 end
-
 function Kron(A,B,C,rest...)
     K=Kron(A,B)
     K=Kron(K,C)
@@ -128,20 +120,18 @@ function Kron(A,B,C,rest...)
     end
     return(K)
 end
-
 function Kron(A)
     return(A)
 end
 
-SpinOp(n::Integer,S,k::Integer) = Kron(speye(2^(k-1)),S,speye(2^(n-k)))
+SpinOp(n::Integer,S,k::Integer) = Kron(sparse(I,(2^(k-1)),S,sparse(I,2^(n-k)))
 
 TwoSpinOp(n::Integer,S,k::Integer,P,j::Integer) =
-    Kron(speye(2^(k-1)), S, speye(2^(j-k-1)), P, speye(2^(n-j)) )
+    Kron(sparse(I,2^(k-1)), S, sparse(I,2^(j-k-1)), P, sparse(I,2^(n-j)) )
 
 OpJstrong(n,k,l)=TwoSpinOp(n,Sx,k,Sx,l)+TwoSpinOp(n,Sy,k,Sy,l)+TwoSpinOp(n,Sz,k,Sz,l)
 
 OpJweak(n,k,l)=TwoSpinOp(n,Sz,k,Sz,l)
-
 
 function Commutator(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
@@ -160,7 +150,6 @@ function Commutator(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     end
     return K
 end
-
 function Commutator(A::Array{T2,2},B::AbstractSparseMatrix{T1,Int64}) where {T1,T2}
     (p,q)=size(A)
 #    (n,m)=size(B)
@@ -209,8 +198,6 @@ function Commutator!(C::Array{T2,2},B::AbstractSparseMatrix{T1,Int64},A::Array{T
 
     return C
 end
-
-
 function Commutator!(C::Array{T2,2},B::Array{T1,2},A::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
 #    (n,m)=size(B)
@@ -228,7 +215,6 @@ function Commutator!(C::Array{T2,2},B::Array{T1,2},A::Array{T2,2}) where {T1,T2}
 
     return C
 end
-
 function RungeKutta(dw::Real,n::Integer,H,rho0::Array{T2,2},t0::Real,obs;StepFactor=4) where {T2}
    rho=rho0;
    t=t0;
@@ -257,7 +243,6 @@ function RungeKutta(dw::Real,n::Integer,H,rho0::Array{T2,2},t0::Real,obs;StepFac
     end
     return(a,rho);
 end
-
 function RungeKutta(dw::Real,n::Integer,H,rho0,t0::Real,obs;StepFactor=4)
    rho=rho0;
    t=t0;
@@ -287,8 +272,6 @@ function RungeKutta(dw::Real,n::Integer,H,rho0,t0::Real,obs;StepFactor=4)
     end
     return(a,rho);
 end
-
-
 function chop!(A::SparseMatrixCSC{Ti,Tv}) where {Ti,Tv}
     tol=1.e-14;
     for k=1:length(A.nzval)
@@ -297,8 +280,6 @@ function chop!(A::SparseMatrixCSC{Ti,Tv}) where {Ti,Tv}
     dropzeros!(A);
     return A;
 end
-
-
 function Propagate(dw::Real,n::Integer,P,rho0,t0::Real,obs)
     rho=rho0;
     t=t0;
@@ -311,7 +292,5 @@ function Propagate(dw::Real,n::Integer,P,rho0,t0::Real,obs)
     end
     return (a,rho)
 end
-
-
 
 #end

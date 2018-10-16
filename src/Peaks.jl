@@ -1,4 +1,5 @@
-export peaks, PeakStruct
+import LightXML
+export peaks, PeakStruct, ToXML
 
 mutable struct PeakStruct
     positions::Array{Float64,1}
@@ -89,3 +90,23 @@ function peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
 
     return(PeakStruct(cpks,hpks,σ,c,Data1D(B*c,dinput.istart,dinput.istop)))
 end
+"""
+
+	ToXML(p)
+
+generates an XML structure containing the peak intensities, positions, and widths
+contained in the `PeakStruct` `p`.
+"""
+function ToXML(p::PeakStruct)
+	root=LightXML.new_element("PeakStruct")
+	for k=1:length(p.positions)
+		e=LightXML.new_child(root, "Peak")
+		LightXML.add_text( LightXML.new_child(e,"Intensity"), "$(p.intensities[k])" )
+		LightXML.add_text( LightXML.new_child(e,"Position"), "$(p.positions[k])" )
+		LightXML.add_text( LightXML.new_child(e,"Width"), "$(p.widths[k])" )
+	end
+	return root
+end
+
+
+
