@@ -17,7 +17,7 @@ const VertexList = Array{Float32,2}
 # Blank: a NOP GraphicsElement
 # =======================================================
 
-abstract type Blank <: GraphicsElement
+struct Blank <: GraphicsElement
 end
 
 
@@ -70,7 +70,7 @@ end
 # Ellipses and Circles
 # =======================================================
 
-struct Circle <: GraphicsElement
+mutable struct Circle <: GraphicsElement
 	vertices::VertexList
 	attr::GraphicsAttributes
 	Circle(list::VertexList) = new(list,GraphicsAttributes([]) )

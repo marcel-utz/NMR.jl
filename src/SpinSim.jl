@@ -124,10 +124,12 @@ function Kron(A)
     return(A)
 end
 
-SpinOp(n::Integer,S,k::Integer) = Kron(sparse(I,(2^(k-1)),S,sparse(I,2^(n-k)))
+speye(k::Integer) = sparse(I,k,k)
+
+SpinOp(n::Integer,S,k::Integer) = Kron(speye(2^(k-1)),S,speye(2^(n-k)))
 
 TwoSpinOp(n::Integer,S,k::Integer,P,j::Integer) =
-    Kron(sparse(I,2^(k-1)), S, sparse(I,2^(j-k-1)), P, sparse(I,2^(n-j)) )
+    Kron(speye(2^(k-1)), S, speye(2^(j-k-1)), P, speye(2^(n-j)) )
 
 OpJstrong(n,k,l)=TwoSpinOp(n,Sx,k,Sx,l)+TwoSpinOp(n,Sy,k,Sy,l)+TwoSpinOp(n,Sz,k,Sz,l)
 
@@ -178,7 +180,7 @@ function Trc(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     return sum([A[k,l]*B[l,k] for k=1:n,l=1:n])
 end
 
-Trc(A,B) = trace(A*B)
+Trc(A,B) = tr(A*B)
 
 
 function Commutator!(C::Array{T2,2},B::AbstractSparseMatrix{T1,Int64},A::Array{T2,2}) where {T1,T2}

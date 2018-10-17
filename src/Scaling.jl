@@ -6,7 +6,7 @@ export NiceScale, scaled
 floorx(x) = x<0 ? ceil(x) : floor(x)
 ceilx(x) = x<0 ? floor(x) : ceil(x)
 
-struct NiceScale
+mutable struct NiceScale
   minPoint::Float32
   maxPoint::Float32
   maxTicks::Float32
