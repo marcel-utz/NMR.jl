@@ -108,5 +108,25 @@ function ToXML(p::PeakStruct)
 	return root
 end
 
+"""
+
+	 FromXML(e::XMLElement)
+
+converts XML representation to `PeakStruct` 
+"""
+function FromXML(e::LightXML.XMLElement)
+	int=Array(Float64,1)([])
+	pos=similar(int)
+	wid=similar(int)
+
+# we assume that the name of e is "PeakStruct", we don't check it here anymore
+	for k in e["Peak"]
+		push!(pos,content(k["Position"]));
+		push!(int,content(k["Intensity"]));
+		push!(wid,content(k["Width"]));
+	end
+
+	return PeakStruct(pos,[],wid,int,Data1D([],[]))
+end
 
 

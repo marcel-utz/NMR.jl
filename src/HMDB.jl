@@ -7,6 +7,10 @@ using Printf
 global HMDB_dir
 global hmdb_root
 
+function __init()__
+	hmdb_root=XMLDocument()
+end
+
 mutable struct HMDBpeaks
     spectID::String
     accession::String
@@ -26,22 +30,34 @@ function HMDBpeaks(pks,ints; spectID="", accession="", name="", nucleus="",
       solvent,pH,pks,ints)
 end
 
+function HMDBpeaks(spectrum::XMLElement; spectID="", accession="", name="")
+        peaks=find_element(spectrum,"nmr-one-d-peaks");
+        snucleus=content(find_element(spectrum,"nucleus"));
+        ssolvent=content(find_element(spectrum,"solvent"));
+        sfreq=content(find_element(spectrum,"frequency"));
+        spH=content(find_element(spectrum,"sample-ph"));
+        pks=[parse(Float64,content(find_element(x,"chemical-shift"))) for x in child_elements(peaks)];
+        ints=[parse(Float64,content(find_element(x,"intensity"))) for x in child_elements(peaks)];
+        
+	return HMDBpeaks(pks,ints,name=name,accession=accession,nucleus=snucleus,
+                spectID=spectID,frequency=sfreq,solvent=ssolvent,pH=spH)
+end
 
 """
 `function init_root(s="~/HMDB")`:
 initialise HMDB data set; parse the main XML file, and set the
 HMDB root directory.
 """
-function init_root(s="~/HMDB")
-  global HMDB_dir=s;
-  global hmdb_root=parse_file(HMDB_dir*"/hmdb_metabolites.xml") ;
-  gc();
+function init_root(s="~/HMDB";root_file="hmdb_metabolites.xml")
+	free(hmdb_root)
+ 	global HMDB_dir=s;
+	global hmdb_root=parse_file(HMDB_dir*root_file) ;
 end
 
 function _set_root(r,s)
    global HMDB_dir=s;
    global hmdb_root=r;
- end
+end
 
 """
 'function NMRpeaksByName(r::Regex;verbose=true,solvent=<regex>,nucleus=<regex>,frequency=<regex>,pH=<regex>)'
@@ -51,7 +67,7 @@ whose name matches 'r'.
 function NMRpeaksByName(r::Regex;verbose=true,solvent=r".*",nucleus=r"1H",frequency=r".*",pH=r".*")
 
     # find the first match of the regular expression among metabolite names
-    targets=Iterators.filter(x->ismatch(r, content(find_element(x,"name"))), child_elements(root(hmdb_root))) ;
+    targets=Iterators.filter(x->occursin(r, content(find_element(x,"name"))), child_elements(root(hmdb_root))) ;
 
     if !isempty(targets)
         x=first(targets)
@@ -63,7 +79,7 @@ function NMRpeaksByName(r::Regex;verbose=true,solvent=r".*",nucleus=r"1H",freque
         accession=content(x["accession"][1])
 
         spect=x["spectra"][1]["spectrum"]
-        nmrOneD=Iterators.filter(x->ismatch(r".*NmrOneD.*",content(x["type"][1])),spect)
+        nmrOneD=Iterators.filter(x->occursin(r".*NmrOneD.*",content(x["type"][1])),spect)
         !isempty(nmrOneD) || throw("No 1D NMR spectra found.")
 
     else
@@ -88,7 +104,7 @@ function NMRpeaksByName(r::Regex;verbose=true,solvent=r".*",nucleus=r"1H",freque
 
         verbose && @printf("Nucleus: %s, Solvent: %s, Frequency: %s, pH: %s\n",snucleus,ssolvent,sfreq,spH)
 
-        if(ismatch(solvent,ssolvent) && ismatch(nucleus,snucleus))
+        if(occursin(solvent,ssolvent) && occursin(nucleus,snucleus))
 
             verbose && @printf("% 7s % 8s\n","Shift","Int");
             verbose && @printf("----------------\n")
@@ -158,8 +174,5 @@ function NMRpeaksByFile(fn;verbose=false)
         return HMDBpeaks(pks,ints,name=sname,spectID=spect_id,accession=db_id,nucleus=snucleus,frequency=sfreq,solvent=ssolvent,pH=spH)
 
 end
-
-
-
 
 end
