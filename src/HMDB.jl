@@ -7,9 +7,8 @@ using Printf
 global HMDB_dir
 global hmdb_root
 
-function __init()__
-	hmdb_root=XMLDocument()
-end
+
+boing() = hmdb_root ;
 
 mutable struct HMDBpeaks
     spectID::String
@@ -173,6 +172,11 @@ function NMRpeaksByFile(fn;verbose=false)
         free(spectrum)
         return HMDBpeaks(pks,ints,name=sname,spectID=spect_id,accession=db_id,nucleus=snucleus,frequency=sfreq,solvent=ssolvent,pH=spH)
 
+end
+
+function __init()__
+	global hmdb_root=parse_file("$(@__DIR__)/HMDB_subset_with_NMR.xml")
+	println("HMDB initialised");
 end
 
 end

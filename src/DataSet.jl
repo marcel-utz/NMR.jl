@@ -7,6 +7,9 @@ using Statistics
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
+export plot,plot!
+
+import Plots
 
 #import NMR.SimplePlot
 
@@ -194,6 +197,16 @@ function -(d::Data1D,n::Number)
     c=deepcopy(d);
     c.dat .-= n;
     return c
+end
+
+function plot(d::Data1D;opts...)
+	return Plots.plot(real.(ind(d)),real.(val(d));opts...)
+end
+
+import Plots.RecipesBase.plot!
+
+function plot!(d::Data1D;opts...)
+	return Plots.plot!(real.(ind(d)),real.(val(d));opts...)
 end
 
 #end
