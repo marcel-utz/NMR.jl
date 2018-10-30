@@ -1,5 +1,5 @@
 import LightXML
-export peaks, PeakStruct, ToXML
+export peaks, shift, PeakStruct, ToXML
 
 mutable struct PeakStruct
     positions::Array{Float64,1}
@@ -7,6 +7,17 @@ mutable struct PeakStruct
     widths::Array{Float64,1}
     intensities::Array{Float64,1}
     deconvolution::Data1D
+end
+
+"""
+	shift(p::PeakStruct,delta::Real)
+
+Shift the positions of all peaks in `p` by delta
+"""
+function shift(p::PeakStruct, delta::Real)
+	np=deepcopy(p)
+	np.positions.+=delta
+	return np
 end
 
 """

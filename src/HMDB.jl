@@ -3,6 +3,7 @@ module HMDB
 
 using LightXML
 using Printf
+import NMR
 
 global HMDB_dir
 global hmdb_root
@@ -59,6 +60,64 @@ function __init__()
 	println("HMDB initialised from $(@__DIR__)");
 end
 
+"""
+	(score,iscore,alpha,std) = matchPeaks(p::NMR.PeakStruct,ref::HMDBpeaks;tol=0.001)
+
+match the peaks in `p` to the reference `ref`. A tuple of four values is returned:
+- `score`: sum of the intensities of the peaks found, normalised by the height of the largest reference peak.  Missing peaks are counted as negative
+- `iscore`: score normalised by the total intensity of the reference peaks (range -1...1)
+- `alpha`: fitted normalised concentration
+- `std`: mean error of fitted normalised concentration
+"""
+function matchPeaks(p::NMR.PeakStruct,ref::HMDBpeaks;tol=0.001)
+    d=ref.pks
+    i=ref.ints
+    length(d) == length(i) || throw("lengths if peak position and intensity lists must match")
+    
+    npeaks=length(p.positions)
+    score=0.0;
+
+    q2=0.0; # cumulative normalisation 
+    p2=0.0;
+    Pk=0.0; # cumulative projection
+    
+    for k=1:length(d)
+        closest=p.positions[1];
+        cInt=p.intensities[1];
+        
+        r=searchsorted(p.positions,d[k])
+        if first(r) > npeaks 
+            closest=p.positions[npeaks]
+            cInt=p.intensities[npeaks];
+
+        elseif first(r)==1 && isempty(r)
+            closest=p.positions[1]
+            cInt=p.intensities[1]
+            
+        elseif !isempty(r)
+            closest=p.positions[first(r)]
+            cInt=p.intensities[first(r)]
+        else
+            closest= abs(p.positions[first(r)]-d[k])<abs(p.positions[first(r)-1]-d[k]) ? p.positions[first(r)] : p.positions[first(r)-1]
+            cInt= abs(p.positions[first(r)]-d[k])<abs(p.positions[first(r)-1]-d[k]) ? p.intensities[first(r)] : p.intensities[first(r)-1]
+
+        end
+        
+        if abs(closest - d[k]) < tol 
+          score += i[k]
+            q2 += i[k]*i[k]
+            Pk += i[k]*cInt
+            p2 += cInt*cInt
+        else
+            score -= i[k]
+        end
+    end
+    return (score,score/sum(i),Pk/q2, (p2-Pk*Pk/q2)/q2/(length(d)-1),ref.name)
+end
+
+# function matchPeaks(p::NMR.PeakStruct,name::String;opts...)
+#	return matchPeaks(p, refPeaks[name]; opts)
+# end
 
 
 end
