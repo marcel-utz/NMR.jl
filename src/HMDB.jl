@@ -4,6 +4,7 @@ module HMDB
 using LightXML
 using Printf
 import NMR
+import Dates
 
 global HMDB_dir
 global hmdb_root
@@ -115,9 +116,50 @@ function matchPeaks(p::NMR.PeakStruct,ref::HMDBpeaks;tol=0.001)
     return (score,score/sum(i),Pk/q2, (p2-Pk*Pk/q2)/q2/(length(d)-1),ref.name)
 end
 
-# function matchPeaks(p::NMR.PeakStruct,name::String;opts...)
-#	return matchPeaks(p, refPeaks[name]; opts)
-# end
+function matchPeaks(p::NMR.PeakStruct,name::String; opts...)
+	return matchPeaks(p, refPeaks[name]; opts...)
+end
+
+"""
+	xml=matchReport(p::NMR.PeakStruct,tol=0.01,AutoShift=true,iscoreCutoff=0,Id="",verbose=true)
+
+match peaks in `p` against all metabolites in `HMDB.refPeaks`, and create a table of the results.
+If `AutoShift` is set to `true` (default), the `p` is automatically shfited for the greatest overlap
+with D-Glucose. `tol` is the matching tolerance for peak identification. Metabolites
+with iscores below `iscoreCutoff` are not reported. Metabolites are listed in decreasing
+order of concentration. `matchReport()` returns an XML object containing the listed data. `Id` is incorporated
+into the XML object as an attribute, to facilitate later identification of the match report.
+"""
+function matchReport(pinput::NMR.PeakStruct;tol=0.01,AutoShift=true,iscoreCutoff=0,verbose=true,Id="")
+	xml=new_element("HMDBMatchReport");
+	set_attribute(xml,"Id",Id);
+	set_attribute(xml,"Date","$(Dates.now())")
+	if AutoShift
+		δ=-0.1:0.000125:0.1
+		m=[HMDB.matchPeaks(NMR.shift(pinput,x),HMDB.refPeaks["D-Glucose"],tol=0.01)[2] for x in δ]
+		p=NMR.shift(pinput,δ[argmax(m)])
+	else
+		p=pinput
+	end
+
+	matches=[HMDB.matchPeaks(p,ref,tol=tol) for (names,ref) in HMDB.refPeaks]; 
+	filter!(x->x[2]>0,matches);         # remove all metabolites for which iscore<0
+	sort!(matches,by=x->x[3],rev=true); # sort by descending concentration
+
+	if verbose
+		@printf("Metabolite Matches\n")
+		@printf("==================\n")
+		@printf("%-30s % 10s % 10s % 10s\n\n","Name","Score","iScore","alpha");
+	end	
+
+	for (score,iscore,alpha,delta,name) in matches
+   	 	verbose && @printf("%-30s % 10.2f% 10.2f% 14.3f ±%10.3f\n",name,score,iscore,alpha,sqrt(abs(delta)))
+		c=new_child(xml,"Match")
+		set_attributes(c,Name=name,score="$(score)", iscore="$(iscore)", alpha="$(alpha)",stderr="$(sqrt(abs(delta)))")
+	end
+	return xml
+end
+
 
 
 end
