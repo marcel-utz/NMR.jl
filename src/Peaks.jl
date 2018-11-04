@@ -93,7 +93,7 @@ function peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
     cpks=[pos2ind(dr,k) for k in peaks]+[-0.5*C[2]/C[3] for C in coeffs]; # corrected peak positions
     hpks=[C[1]-0.25*C[2]*C[2]/C[3] for C in coeffs]; # corrected peak heights
 
-    # devonvolute the spectrum with Lorentzian peaks of the determined
+    # deconvolute the spectrum with Lorentzian peaks of the determined
     # positions and widths
 
     B=collect(lorentzian(cpks[k],0.66*σ[k],x) for x in NMR.ind(dinput), k in 1:length(cpks))  ;

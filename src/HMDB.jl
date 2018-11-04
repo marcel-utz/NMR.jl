@@ -5,6 +5,7 @@ using LightXML
 using Printf
 import NMR
 import Dates
+import LinearAlgebra
 
 global HMDB_dir
 global hmdb_root
@@ -175,6 +176,22 @@ function refSpectrum(name::String,range;lw=0.005)
 	return d
 end
 
+"""
+	decompositionMatrix(names,range)
+
+compute a decomposition matrix B such that B s  is the vector of concentrations
+of the metabolites listed in `names`. The pseudo-inverse is used for this purpose.
+"""
+function decompositionMatrix(mlist,range;opts...)
+	B=zeros(length(range),length(mlist))
+	k=1
+	for m in mlist
+		r=HMDB.refSpectrum(m,range;opts...)
+  	 	B[:,k]=NMR.val(r)
+		k=k+1 
+	end
+	return LinearAlgebra.pinv(B)
+end
 
 
 end
