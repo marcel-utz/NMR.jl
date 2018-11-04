@@ -135,7 +135,7 @@ function matchReport(pinput::NMR.PeakStruct;tol=0.01,AutoShift=true,iscoreCutoff
 	set_attribute(xml,"Id",Id);
 	set_attribute(xml,"Date","$(Dates.now())")
 	if AutoShift
-		δ=-0.1:0.000125:0.1
+		δ=-0.02:0.000125:0.02
 		m=[HMDB.matchPeaks(NMR.shift(pinput,x),HMDB.refPeaks["D-Glucose"],tol=0.01)[2] for x in δ]
 		p=NMR.shift(pinput,δ[argmax(m)])
 	else

@@ -43,7 +43,7 @@ package.
 """
 function AutoPhaseCorrect(spect::Data1D;verbose=false,γ=1.e-5)
   piv=(spect.istart+spect.istop)/2
-  result=Optim.optimize(x->goalfun(x,spect,γ),[π/2,-0.1],Optim.NelderMead());
+  result=Optim.optimize(x->goalfun(x,spect,γ),[π/2,0.],Optim.NelderMead());
   if verbose print(result) end;
   pc=Optim.minimizer(result);
   return PhaseCorrect(spect,Ph0=pc[1],Ph1=pc[2],Pivot=piv);
