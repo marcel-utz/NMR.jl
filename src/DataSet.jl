@@ -181,6 +181,13 @@ function *(d::Data1D,n::Number)
     return c
 end
 
+function *(d1::Data1D,d2::Data1D)
+	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
+	c=deepcopy(d1);
+	c.dat = d1.dat .* d2.dat
+	return c
+end
+
 function /(d::Data1D,n::Number)
     c=deepcopy(d);
     c.dat ./= n;

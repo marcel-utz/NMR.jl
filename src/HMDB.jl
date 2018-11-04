@@ -167,13 +167,14 @@ compute a reference spectrum over `range` using the peak positions in
 reference spectrum `name`. A Lorentzian line with half width `lw` is used. The
 reference spectrum is returned as a real `Data1D` object.
 """
-function refSpectrum(name::String,range;lw=0.01)
+function refSpectrum(name::String,range;lw=0.005)
 	p=refPeaks[name]
 	npeaks=length(p.pks)
 	vals = sum(k -> p.ints[k]*[NMR.lorentzian(p.pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
 	d=NMR.Data1D{Float64,Float64}(vals,minimum(range),maximum(range))
 	return d
 end
+
 
 
 end
