@@ -8,7 +8,7 @@ export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
 export plot,plot!
-
+export length,shift 
 import Plots
 
 #import NMR.SimplePlot
@@ -181,6 +181,8 @@ function *(d::Data1D,n::Number)
     return c
 end
 
+*(n::Number,d::Data1D)=d*n
+
 function *(d1::Data1D,d2::Data1D)
 	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
 	c=deepcopy(d1);
@@ -194,16 +196,39 @@ function /(d::Data1D,n::Number)
     return c
 end
 
+function /(d1::Data1D,d2::Data1D)
+	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
+	c=deepcopy(d1);
+	c.dat = d1.dat ./ d2.dat
+	return c
+end
+
 function +(d::Data1D,n::Number)
     c=deepcopy(d);
     c.dat .+= n;
     return c
 end
 
++(n::Number,d::Data1D)=d+n
+
+function +(d1::Data1D,d2::Data1D)
+	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
+	c=deepcopy(d1);
+	c.dat = d1.dat .+ d2.dat
+	return c
+end
+
 function -(d::Data1D,n::Number)
     c=deepcopy(d);
     c.dat .-= n;
     return c
+end
+
+function -(d1::Data1D,d2::Data1D)
+	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
+	c=deepcopy(d1);
+	c.dat = d1.dat .- d2.dat
+	return c
 end
 
 function plot(d::Data1D;opts...)
@@ -215,5 +240,19 @@ import Plots.RecipesBase.plot!
 function plot!(d::Data1D;opts...)
 	return Plots.plot!(real.(ind(d)),real.(val(d));opts...)
 end
+
+import Base.length
+
+function length(d::Data1D)
+	return length(d.dat)
+end
+
+function shift(d::Data1D,δ::Number)
+	c=deepcopy(d);
+	c.istart += δ
+	c.istop += δ
+	return c
+end
+
 
 #end
