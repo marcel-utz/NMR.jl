@@ -5,7 +5,7 @@ export readBrukerFID
 function readBrukerFID(f::IOStream; format=Float64)
   data = Array{format,1}([])
   while !eof(f)
-    append!(data,(read(f,format,1)));
+    append!(data,(read(f,format)));
   end
   return data[1:2:end]+im*data[2:2:end]
 end
