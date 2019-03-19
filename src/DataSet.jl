@@ -77,7 +77,9 @@ function FourierTransform(fid::Data1D;
     s[1]*=0.5;
     SW=length(fid.dat)/(fid.istop-fid.istart);
     spect=fft(s);
-    if(FFTSHIFT) spect=fftshift(spect);
+    if(FFTSHIFT) 
+        spect=fftshift(spect)
+    end;
     return Data1D(spect,CTR-SW/2/PPM,CTR+SW/2/PPM)
 end
 
