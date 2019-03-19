@@ -8,7 +8,7 @@ export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
 export plot,plot!
-export length,shift 
+export length,shift
 import Plots
 
 #import NMR.SimplePlot
@@ -69,14 +69,15 @@ function FourierTransform(fid::Data1D;
         CTR=0.0,
         LB=0.0,
         SI=length(fid.dat),
-        PPM=1)
+        PPM=1,FFTSHIFT=true)
 
     apod=[exp(-t*LB) for t=ind(fid)];
     s=zeros(Complex{Float64},SI);
     s[1:length(apod)]=apod.*fid.dat;
     s[1]*=0.5;
     SW=length(fid.dat)/(fid.istop-fid.istart);
-    spect=fftshift(fft(s));
+    spect=fft(s);
+    if(FFTSHIFT) spect=fftshift(spect);
     return Data1D(spect,CTR-SW/2/PPM,CTR+SW/2/PPM)
 end
 
@@ -197,7 +198,7 @@ function /(d::Data1D,n::Number)
 end
 
 function /(d1::Data1D,d2::Data1D)
-	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
+	ind(d1) == ind(d2) || error("Data1D objects incompatible for division")
 	c=deepcopy(d1);
 	c.dat = d1.dat ./ d2.dat
 	return c
@@ -212,7 +213,7 @@ end
 +(n::Number,d::Data1D)=d+n
 
 function +(d1::Data1D,d2::Data1D)
-	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
+	ind(d1) == ind(d2) || error("Data1D objects incompatible for addition")
 	c=deepcopy(d1);
 	c.dat = d1.dat .+ d2.dat
 	return c
@@ -225,7 +226,7 @@ function -(d::Data1D,n::Number)
 end
 
 function -(d1::Data1D,d2::Data1D)
-	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
+	ind(d1) == ind(d2) || error("Data1D objects incompatible for subtraction")
 	c=deepcopy(d1);
 	c.dat = d1.dat .- d2.dat
 	return c
