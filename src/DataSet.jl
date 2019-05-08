@@ -10,6 +10,7 @@ export integral,derivative,set!
 export plot,plot!
 export length,shift
 import Plots
+import Base.iterate
 
 #import NMR.SimplePlot
 
@@ -29,6 +30,9 @@ mutable struct Data1D{Tdata,Tindex}
    istop::Tindex
 end
 
+Base.iterate(d::NMR.Data1D,state=1) =
+    state > length(d) ? nothing :
+      ((d.istart+state*(d.istop-d.istart)/length(d),d.dat[state]),state+1)
 
 function ind2pos(d::Data1D,ind)
     return round(Int64,(ind-d.istart)*length(d.dat)/(d.istop-d.istart))+1
@@ -77,7 +81,7 @@ function FourierTransform(fid::Data1D;
     s[1]*=0.5;
     SW=length(fid.dat)/(fid.istop-fid.istart);
     spect=fft(s);
-    if(FFTSHIFT) 
+    if(FFTSHIFT)
         spect=fftshift(spect)
     end;
     return Data1D(spect,CTR-SW/2/PPM,CTR+SW/2/PPM)
