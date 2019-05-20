@@ -180,7 +180,7 @@ function set!(spect::Data1D,start,stop,value=0)
     spect.dat[rge]=value
 end
 
-import Base.*, Base./, Base.+,Base.-
+import Base.*, Base./, Base.+,Base.-,Base.abs
 
 function *(d::Data1D,n::Number)
     c=deepcopy(d);
@@ -238,6 +238,11 @@ function -(d1::Data1D,d2::Data1D)
 	return c
 end
 
+function abs(d::Data1D)
+    c=Data1D(abs.(d.dat),d.istart,d.istop)
+    return c
+end
+
 function plot(d::Data1D;opts...)
 	return Plots.plot(real.(ind(d)),real.(val(d));opts...)
 end
@@ -260,6 +265,7 @@ function shift(d::Data1D,δ::Number)
 	c.istop += δ
 	return c
 end
+
 
 
 #end

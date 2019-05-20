@@ -3,7 +3,7 @@
 #using NMR.DataSet
 import Optim
 
-export entropy, AutoPhaseCorrect
+export entropy, AutoPhaseCorrect, AutoPhaseCorrectChen
 
 ent(x) = x*log(x)
 
@@ -34,19 +34,46 @@ function goalfun(x,spect,γ=1.e-5)
 end
 
 """
-`AutoPhaseCorrect(spect::Data1D;verbose=false)`
+`AutoPhaseCorrectChen(spect::Data1D;verbose=false)`
 performs zero- and first-order phase correction of `spect`
 using a minimum entropy algorithm  by Chen et al. in
 *Journal of Magnetic Resonance* **158** (2002) 164–168.
 It uses the Nelder-Mead algorithm, as implemented in the `Optim.jl`
 package.
 """
-function AutoPhaseCorrect(spect::Data1D;verbose=false,γ=1.e-5)
+function AutoPhaseCorrectChen(spect::Data1D;verbose=false,γ=1.e-5)
   piv=(spect.istart+spect.istop)/2
   result=Optim.optimize(x->goalfun(x,spect,γ),[π/2,0.],Optim.NelderMead());
   if verbose print(result) end;
   pc=Optim.minimizer(result);
   return PhaseCorrect(spect,Ph0=pc[1],Ph1=pc[2],Pivot=piv);
+end
+
+
+"""
+`AutoPhaseCorrect(spect::Data1D)`
+performs zero- and first-order phase correction of `spect`
+using a the algorithm by van der Waals and Geerens,
+*Journal of Magnetic Resonance* **86** (1990) 127-154.
+It works by recognising the peaks in the magnitude mode spectrum
+and then representing the phase at each peak location
+through a linear regression.
+"""
+function AutoPhaseCorrect(s::NMR.Data1D)
+    # --- Step 1: basic phase adjustment
+    phase0=angle(sum(s.dat))
+    s1=PhaseCorrect(s,Ph0=-phase0)
+
+    # --- Step 2: recognise peaks in the absolute mode spectrum
+    pks=NMR.peaks(abs(s1),threshold=5);
+
+    # --- Step 3: obtain list of peak phases
+    ppos=[NMR.ind2pos(s1,x) for x in pks.positions]
+    pphase=[angle(s1.dat[p]) for p in ppos]
+    α=NMR.polyfit(pks.positions,pphase,1)
+
+    s3=NMR.PhaseCorrect(s1,Ph0=-α[1],Ph1=-α[2])
+    return s3
 end
 
 
