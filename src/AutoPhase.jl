@@ -59,13 +59,13 @@ It works by recognising the peaks in the magnitude mode spectrum
 and then representing the phase at each peak location
 through a linear regression.
 """
-function AutoPhaseCorrect(s::NMR.Data1D)
+function AutoPhaseCorrect(s::NMR.Data1D;threshold=5)
     # --- Step 1: basic phase adjustment
     phase0=angle(sum(s.dat))
     s1=PhaseCorrect(s,Ph0=-phase0)
 
     # --- Step 2: recognise peaks in the absolute mode spectrum
-    pks=NMR.peaks(abs(s1),threshold=5);
+    pks=NMR.peaks(abs(s1),threshold=threshold);
 
     # --- Step 3: obtain list of peak phases
     ppos=[NMR.ind2pos(s1,x) for x in pks.positions]
