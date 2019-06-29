@@ -47,7 +47,7 @@ function AutoPhaseCorrectChen(spect::Data1D;verbose=false,γ=1.e-5)
   if verbose print(result) end;
   pc=Optim.minimizer(result);
   scorr = PhaseCorrect(spect,Ph0=pc[1],Ph1=pc[2],Pivot=piv);
-  if (integral(scorr)<0.0) scorr = -1.0*scorr end;
+  if (real(integral(scorr))<0.0) scorr = -1.0*scorr end;
   return scorr ;
 end
 
