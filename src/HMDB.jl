@@ -39,7 +39,7 @@ function HMDBpeaks(spectrum::XMLElement; accession="", name="", normalisation=1)
 	sid=content(find_element(spectrum,"id"));
         pks=[parse(Float64,content(find_element(x,"chemical-shift"))) for x in child_elements(peaks)];
         ints=[parse(Float64,content(find_element(x,"intensity"))) for x in child_elements(peaks)];
-        ints .*= normalisation/sum(ints) 
+        ints .*= normalisation/sum(ints)
 	return HMDBpeaks(pks,ints,name=name,accession=accession,nucleus=snucleus,
                 spectID=sid,frequency=sfreq,solvent=ssolvent,pH=spH)
 end
@@ -48,7 +48,7 @@ global refPeaks
 
 function __init__()
 	global hmdb_root=root(parse_file("$(@__DIR__)/HMDB_subset_with_NMR.xml"))
-	global refPeaks=Dict{String,HMDBpeaks}() 
+	global refPeaks=Dict{String,HMDBpeaks}()
 	name=""
 	for m in hmdb_root["metabolite"]
 		name = content(find_element(m,"name"))
@@ -58,7 +58,7 @@ function __init__()
 		peaks = HMDBpeaks(find_element(refspect,"nmr-one-d"),accession=acc,normalisation=spectProtons,name=name)
 		push!(refPeaks, name => peaks)
 	end
-	
+
 	println("HMDB initialised from $(@__DIR__)");
 end
 
@@ -75,27 +75,27 @@ function matchPeaks(p::NMR.PeakStruct,ref::HMDBpeaks;tol=0.001)
     d=ref.pks
     i=ref.ints
     length(d) == length(i) || throw("lengths if peak position and intensity lists must match")
-    
+
     npeaks=length(p.positions)
     score=0.0;
 
-    q2=0.0; # cumulative normalisation 
+    q2=0.0; # cumulative normalisation
     p2=0.0;
     Pk=0.0; # cumulative projection
-    
+
     for k=1:length(d)
         closest=p.positions[1];
         cInt=p.intensities[1];
-        
+
         r=searchsorted(p.positions,d[k])
-        if first(r) > npeaks 
+        if first(r) > npeaks
             closest=p.positions[npeaks]
             cInt=p.intensities[npeaks];
 
         elseif first(r)==1 && isempty(r)
             closest=p.positions[1]
             cInt=p.intensities[1]
-            
+
         elseif !isempty(r)
             closest=p.positions[first(r)]
             cInt=p.intensities[first(r)]
@@ -104,8 +104,8 @@ function matchPeaks(p::NMR.PeakStruct,ref::HMDBpeaks;tol=0.001)
             cInt= abs(p.positions[first(r)]-d[k])<abs(p.positions[first(r)-1]-d[k]) ? p.intensities[first(r)] : p.intensities[first(r)-1]
 
         end
-        
-        if abs(closest - d[k]) < tol 
+
+        if abs(closest - d[k]) < tol
           score += i[k]
             q2 += i[k]*i[k]
             Pk += i[k]*cInt
@@ -143,7 +143,7 @@ function matchReport(pinput::NMR.PeakStruct;tol=0.01,AutoShift=true,iscoreCutoff
 		p=pinput
 	end
 
-	matches=[HMDB.matchPeaks(p,ref,tol=tol) for (names,ref) in HMDB.refPeaks]; 
+	matches=[HMDB.matchPeaks(p,ref,tol=tol) for (names,ref) in HMDB.refPeaks];
 	filter!(x->x[2]>0,matches);         # remove all metabolites for which iscore<0
 	sort!(matches,by=x->x[3],rev=true); # sort by descending concentration
 
@@ -151,7 +151,7 @@ function matchReport(pinput::NMR.PeakStruct;tol=0.01,AutoShift=true,iscoreCutoff
 		@printf("Metabolite Matches\n")
 		@printf("==================\n")
 		@printf("%-30s % 10s % 10s % 10s\n\n","Name","Score","iScore","alpha");
-	end	
+	end
 
 	for (score,iscore,alpha,delta,name) in matches
    	 	verbose && @printf("%-30s % 10.2f% 10.2f% 14.3f ±%10.3f\n",name,score,iscore,alpha,sqrt(abs(delta)))
@@ -164,14 +164,24 @@ end
 """
     s::Data1D = refSpectrum(name::String,range;lw=0.01)
 
-compute a reference spectrum over `range` using the peak positions in 
+compute a reference spectrum over `range` using the peak positions in
 reference spectrum `name`. A Lorentzian line with half width `lw` is used. The
 reference spectrum is returned as a real `Data1D` object.
 """
-function refSpectrum(name::String,range::Array{Float64,1};lw=0.005)
+function refSpectrum(name::String,range::Array{Float64,1};lw=0.005,excl=x->False)
 	p=refPeaks[name]
-	npeaks=length(p.pks)
-	vals = sum(k -> p.ints[k]*[NMR.lorentzian(p.pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
+  ints=[]
+  pks=[]
+  # filter out excluded peaks
+  npeaks=0;
+  for k=1:length(p.pks)
+    if(!excl(p.pks[k]))
+        push!(pks,p.pks[k])
+        push!(ints,p.ints[k])
+        npeaks+=1
+      end
+  end
+	vals = sum(k -> ints[k]*[NMR.lorentzian(pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
 	d=NMR.Data1D{Float64,Float64}(vals,minimum(range),maximum(range))
 	return d
 end
@@ -192,7 +202,7 @@ function decompositionMatrix(mlist,range;opts...)
 	for m in mlist
 		r=HMDB.refSpectrum(m,range;opts...)
   	 	B[:,k]=NMR.val(r)
-		k=k+1 
+		k=k+1
 	end
 	return LinearAlgebra.pinv(B)
 end
