@@ -168,7 +168,7 @@ compute a reference spectrum over `range` using the peak positions in
 reference spectrum `name`. A Lorentzian line with half width `lw` is used. The
 reference spectrum is returned as a real `Data1D` object.
 """
-function refSpectrum(name::String,range::Array{Float64,1};lw=0.005,excl=x->False)
+function refSpectrum(name::String,range::Array{Float64,1};lw=0.005,excl=x->false)
 	p=refPeaks[name]
   ints=[]
   pks=[]
