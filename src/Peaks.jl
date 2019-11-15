@@ -34,6 +34,8 @@ end
 
 lorentzian(x0::Float64,σ::Float64,x::Float64) = 1.0/π*sqrt(σ)/(1.0+σ*(x-x0)^2)
 
+clorentzian(x0::Float64,σ::Float64,x::Float64) = (1.0+1.0im*(x-x0))/π*sqrt(σ)/(1.0+σ*(x-x0)^2)
+
 """
 `peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)`
 identifies the peaks in `dinput`. Peak positions are located roughly
@@ -123,7 +125,7 @@ end
 
 	 FromXML(e::XMLElement)
 
-converts XML representation to `PeakStruct` 
+converts XML representation to `PeakStruct`
 """
 function FromXML(e::LightXML.XMLElement)
 	int=Array(Float64,1)([])
@@ -139,5 +141,3 @@ function FromXML(e::LightXML.XMLElement)
 
 	return PeakStruct(pos,[],wid,int,Data1D([],[]))
 end
-
-
