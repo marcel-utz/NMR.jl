@@ -1,0 +1,5 @@
+name = "NMR"
+uuid = "29608d60-07d6-11ea-0b49-239cc88e4b20"
+version = "0.4.1"
+
+[deps]
