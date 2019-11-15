@@ -1,5 +1,7 @@
 module NMR
 
+import Pkg
+
 #   __precompile__(true);
 
    include("DataSet.jl")
@@ -19,7 +21,7 @@ module NMR
    include("Varian.jl")
 
   function __init__()
-    println("Module NMR v0.4.0\n(c)mu 2018,2019");
+    println("Module NMR $(Pkg.installed()["NMR"])\n(c)mu 2018,2019");
   end
 
 end
