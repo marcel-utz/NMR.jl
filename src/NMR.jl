@@ -20,6 +20,8 @@ import Pkg
    include("Bruker.jl")
    include("Varian.jl")
 
+   include("NeuralNet.jl")
+
   function __init__()
     println("Module NMR $(Pkg.installed()["NMR"])\n(c)mu 2018,2019");
   end
