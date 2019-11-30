@@ -183,7 +183,7 @@ function refSpectrum(name::String,range::Array{Float64,1};lw=0.005,excl=x->false
   end
     if (complex)
         vals = sum(k -> ints[k]*[NMR.clorentzian(pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
-        d=NMR.Data1D{Float64,Complex{Float64}}(vals,minimum(range),maximum(range))
+        d=NMR.Data1D{Complex{Float64},Float64}(vals,minimum(range),maximum(range))
    else
         vals = sum(k -> ints[k]*[NMR.lorentzian(pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
         d=NMR.Data1D{Float64,Float64}(vals,minimum(range),maximum(range))
