@@ -36,7 +36,7 @@ function HMDBpeaks(spectrum::XMLElement; accession="", name="", normalisation=1)
         ssolvent=content(find_element(spectrum,"solvent"));
         sfreq=content(find_element(spectrum,"frequency"));
         spH=content(find_element(spectrum,"sample-ph"));
-	sid=content(find_element(spectrum,"id"));
+        sid=content(find_element(spectrum,"id"));
         pks=[parse(Float64,content(find_element(x,"chemical-shift"))) for x in child_elements(peaks)];
         ints=[parse(Float64,content(find_element(x,"intensity"))) for x in child_elements(peaks)];
         ints .*= normalisation/sum(ints)
@@ -194,8 +194,6 @@ end
 function refSpectrum(name::String,d::NMR.Data1D;opts...)
 	return refSpectrum(name,collect(NMR.ind(d));opts...)
 end
-
-
 
 
 """
