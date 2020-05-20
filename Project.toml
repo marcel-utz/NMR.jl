@@ -1,7 +1,7 @@
 name = "NMR"
 uuid = "29608d60-07d6-11ea-0b49-239cc88e4b20"
 author = ["Marcel Utz <marcel.utz@southampton.ac.uk>"]
-version = "0.5.0"
+version = "0.5.1"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"

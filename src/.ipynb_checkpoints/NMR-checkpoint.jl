@@ -2,7 +2,7 @@ module NMR
 
 import Pkg
 
-#   __precompile__(true);
+   __precompile__(true);
 
    include("DataSet.jl")
    include("AutoPhase.jl")
@@ -19,8 +19,6 @@ import Pkg
 
    include("Bruker.jl")
    include("Varian.jl")
-
-   include("NeuralNet.jl")
 
   function __init__()
     println("Module NMR $(Pkg.installed()["NMR"])\n(c)mu 2018,2019");
