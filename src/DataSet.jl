@@ -39,11 +39,11 @@ function ind2pos(d::Data1D,ind)
 end
 
 function pos2ind(d::Data1D,pos::Integer)
-   return d.istart+(pos-1)/(length(d.dat)-1)*(d.istop-d.istart)
+   return ind(d)[pos]
 end
 
 function ind(d::Data1D)
-	return range(d.istart,stop=d.istop,length=length(d.dat))
+	return LinRange(d.istart,d.istop,length(d.dat))
 end
 
 function val(d::Data1D)
