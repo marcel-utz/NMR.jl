@@ -32,18 +32,18 @@ end
 
 Base.iterate(d::NMR.Data1D,state=1) =
     state > length(d) ? nothing :
-      ((d.istart+state*(d.istop-d.istart)/length(d),d.dat[state]),state+1)
+      ((d.istart+state*(d.istop-d.istart)/(length(d)-1),d.dat[state]),state+1)
 
 function ind2pos(d::Data1D,ind)
-    return round(Int64,(ind-d.istart)*length(d.dat)/(d.istop-d.istart))+1
+    return round(Int64,(ind-d.istart)*(length(d.dat)-1)/(d.istop-d.istart))+1
 end
 
 function pos2ind(d::Data1D,pos::Integer)
-   return d.istart+(pos-1)/length(d.dat)*(d.istop-d.istart)
+   return ind(d)[pos]
 end
 
 function ind(d::Data1D)
-	return d.istart:((d.istop-d.istart)/(length(d.dat)-1)):d.istop
+	return LinRange(d.istart,d.istop,length(d.dat))
 end
 
 function val(d::Data1D)
