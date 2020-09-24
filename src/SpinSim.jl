@@ -5,7 +5,7 @@ using SparseArrays
 using LinearAlgebra
 
 export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
-       Commutator,Trc,RungeKutta,Propagate
+       Commutator,Trc,RungeKutta,Propagate,Spectrum
 
 function Kron(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
@@ -294,5 +294,52 @@ function Propagate(dw::Real,n::Integer,P,rho0,t0::Real,obs)
     end
     return (a,rho)
 end
+
+
+@doc raw"""
+        function Spectrum(ρ,H,Ψ;tol=1e-3)
+
+compute the frequencies and intensities of the spectrum given by the
+the initial density operator ρ, the Hamiltonian H, and the observation operator
+Ψ. The results are returned as a tuple `(freq,int)` of two one-dimensional
+arrays. `tol` is a cutoff; transitions with absolute amplitudes less than
+this value are suppressed.
+"""
+function Spectrum(ρ,H,Ψ;tol=1e-3)
+    F=eigen(collect(H));  # compute eigenvalues and eigenvectors of Hamiltonian
+    Q=sparse(F.vectors) ;
+    NMR.chop!(Q)
+    D=real(F.values) ;
+    F=Q'*Ψ*Q;
+    ρe=Q'*ρ*Q;
+    freqs=Array{Float64,1}([])
+    ints=Array{Complex{Float64},1}([])
+    for n=1:length(D),m=1:length(D)
+        c=F[m,n]*ρe[m,n];
+        if(abs(c)>tol)
+            push!(freqs,D[m]-D[n]);
+            push!(ints,c)
+        end
+    end
+    return (freqs,ints)
+end
+
+
+@doc raw"""
+    function PeakSpect(p,i,r;lw=0.0001)
+
+compute the the spectrum with Lorentzian peaks at locations given in
+array `p` and (complex) amplitudes in array `i`, over the
+range `r`, which can be either an array or a range. lw` is the line width.
+A `Data1D` object is returned.
+"""
+function PeakSpect(p,i,r;lw=0.0001)
+    s=sum([i[k]*NMR.clorentzian.(p[k],(1/lw)^2,r) for k=1:length(p)])
+    return NMR.Data1D(s,first(r),last(r))
+end
+
+
+
+
 
 #end

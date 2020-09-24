@@ -9,7 +9,10 @@ export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
 export plot,plot!
 export length,shift
+
+ENV["GKS_ENCODING"]="utf-8"
 import Plots
+
 import Base.iterate
 
 #import NMR.SimplePlot
@@ -115,6 +118,10 @@ end
 base line of `spect` using the algorithm
 by S. Golotvin, A. Williams, J. Magn. Reson. 146 (2000) 122-125.
 
+`BaseLineCorrect(spect::Data1D,pts::Array{Float64,1})`
+uses the points in `pts` to determine the baseline. This should be a list
+of positions in the spectrum that are known not to contain signal.
+
 Note that if the input data is complex, the imaginary part is ignored,
 and the result is always real.
 """
@@ -145,6 +152,16 @@ function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5,verb
     return (out)
 
 end
+
+function BaseLineCorrect(spect::Data1D,ind::Array{Float64,1};order=5)
+    out=Data1D(real.(spect.dat),spect.istart,spect.istop);
+    n=length(out.dat)
+    pts=[ind2pos(out,k) for k in ind]
+    coeffs=polyfit(pts/n,out.dat[pts],order)
+    out.dat .-= horner(collect(1:n)/n,coeffs)
+    return(out)
+end
+
 
 """
 `integral(spect::Data1D)` computes the numerical integral of `spect` by
