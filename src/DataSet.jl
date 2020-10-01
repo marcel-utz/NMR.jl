@@ -8,7 +8,8 @@ export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
 export integral,derivative,set!
 export plot,plot!
-export length,shift
+export length,shift,hard_shift
+export interp
 
 ENV["GKS_ENCODING"]="utf-8"
 import Plots
@@ -53,6 +54,7 @@ function val(d::Data1D)
     return d.dat
 end
 
+
 function val(d::Data1D,ind)
     i1=(ind-d.istart)*length(d.dat)/(d.istop-d.istart)
     p1=floor(Int64,i1)+1
@@ -65,6 +67,7 @@ function cut(d::Data1D,i1,i2)
     p2=ind2pos(d,i2)
     return Data1D(d.dat[p1:p2],pos2ind(d,p1),pos2ind(d,p2))
 end
+
 
 
 """
@@ -283,6 +286,28 @@ function shift(d::Data1D,δ::Number)
 	return c
 end
 
+"""
+`function hard_shift(d::Data1D,δ::Number)`
 
+shifts the data in `d` by `δ`. The data is re-interpolated as needed; the 
+span of the index of the new data set is reduced by |`δ`|.
+"""
+
+function hard_shift(d::Data1D,δ::Number)
+    # compute integer offset and fractional contribution from left
+    inc=(d.istop-d.istart)/length(d.dat)
+    n = -convert(Integer,div(δ,inc))
+    f = mod(δ,inc)/inc
+    if n>=0
+        ndata=(1-f)*d.dat[(1+n):(end-1)]+f*d.dat[(2+n):end]
+        nstart=d.istart
+        nstop=d.istop+δ
+    else
+        ndata=(1-f)*d.dat[1:(end+n-1)]+f*d.dat[2:(end+n)]
+        nstart=d.istart+δ
+        nstop=d.istop
+    end
+    return Data1D(ndata,nstart,nstop)
+end
 
 #end
