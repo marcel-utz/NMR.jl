@@ -291,7 +291,8 @@ end
 
 shifts the data in `d` by `δ`. The data is re-interpolated as needed. The
 resulting `Data1D` object is guaranteed to have the same index as `d`, such that
-they are compatible for the purposes of addition etc.
+they are compatible for the purposes of addition etc. Data shifted out of the 
+window is lost; data points shifted into view are set to zero.
 """
 function hard_shift(d::Data1D,δ::Number)
     # compute integer offset and fractional contribution from left
