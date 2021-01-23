@@ -2,7 +2,7 @@ module NMR
 
 import Pkg
 
-   __precompile__(false);
+   __precompile__(true);
 
    include("DataSet.jl")
    include("AutoPhase.jl")
@@ -21,7 +21,7 @@ import Pkg
    include("Varian.jl")
 
   function __init__()
-    println("Module NMR\n(c)mu 2018,2019,2020");
+    println("Module NMR v0.6.3\n(c)mu 2018-2021");
   end
 
 end

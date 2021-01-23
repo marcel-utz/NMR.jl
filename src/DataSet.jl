@@ -296,7 +296,7 @@ window is lost; data points shifted into view are set to zero.
 """
 function hard_shift(d::Data1D,δ::Number)
     # compute integer offset and fractional contribution from left
-    inc=(d.istop-d.istart)/length(d.dat)
+    inc=(d.istop-d.istart)/(length(d.dat)-1)
     n = convert(Integer,div(δ,inc))
     f = mod(δ,inc)/inc
     ndata=zero(d.dat)
@@ -306,7 +306,7 @@ function hard_shift(d::Data1D,δ::Number)
     if n<0
         ndata[1:(end+n-1)]=(1-f)*d.dat[(1-n):(end-1)]+f*d.dat[(2-n):end]
     else
-        ndata[n:end-2]=(1-f)*d.dat[1:end-n-1]+f*d.dat[2:end-n]
+        ndata[n+1:end-1]=(1-f)*d.dat[1:end-n-1]+f*d.dat[2:end-n]
     end
     
     return Data1D(ndata,nstart,nstop)
