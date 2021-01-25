@@ -68,6 +68,7 @@ function cut(d::Data1D,i1,i2)
     return Data1D(d.dat[p1:p2],pos2ind(d,p1),pos2ind(d,p2))
 end
 
+resolution(d::Data1D) = (d.istop-d.istart)/length(d.dat)
 
 
 """
@@ -117,22 +118,57 @@ function horner(x::Vector, c::Vector)
 end
 
 """
-`BaseLineCorrect(spect::Data1D;regions=128,kfactor=5)` corrects the
+## Automatic Baseline Correction
+`BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32)` corrects the
 base line of `spect` using the algorithm
 by S. Golotvin, A. Williams, J. Magn. Reson. 146 (2000) 122-125.
 
+
+
+### Optional Parameters:
+- `regions`: the number of regions the spectrum is divided into to estimate
+   the noise variance. This should be chosen large enough so that at least one
+   of these regions is free from signals, and shows a flat baseline. The 
+   variance ``\\sigma^2_{min}`` in this region is then used to distinguish signals and noise.
+
+- `wdw`: the window size around each data point that is used to decide whether the
+  data point is part of a signal, or should be counted as base line. 
+
+- `kfactor`: a point will be counted as part of the baseline if and only if the local
+  variance in its window is less than `kfactor`*``\\sigma^2_{min}``.
+
+- `output`: defaults to `:spectrum`. `output=:points` will return an array of points,
+  which indicate baseline positions (locations free from peaks) as determined
+  by the algorithm. This is useful in situations where a large number of similar
+  spectra need to be processed.
+
+### Notes
+- if the input data is complex, the imaginary part is ignored,
+  and the result is always real.
+
+- the first and last point of `spect` are always used as part of the baseline. 
+  The first and last points of the output are therefore guaranteed to be zero. This
+  helps to keep the interpolation numerically stable.
+
+
+## Baseline Correction With Known Locations
+
 `BaseLineCorrect(spect::Data1D,pts::Array{Float64,1})`
 uses the points in `pts` to determine the baseline. This should be a list
-of positions in the spectrum that are known not to contain signal.
+of positions in the spectrum that are known not to contain signal; it can be obtained
+by using the option `output=:points` in the first method of `BaseLineCorrect()`. 
 
-Note that if the input data is complex, the imaginary part is ignored,
-and the result is always real.
 """
-function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5,verbose=false)
+function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,lw=0.0,wdw=32,order=5,verbose=false,output=:spectrum)
 
     out=Data1D(real.(spect.dat),spect.istart,spect.istop);
     n=length(out.dat)
     lreg=floor(Int64,n/regions)
+    
+    # compute wdw from lw parameter if set
+    if lw>0.0
+        wdw = round(Int32,4*lw/resolution(spect))
+    end
 
     # find smallest standard deviation in regions
     mindev=minimum(abs.([std(out.dat[k:k+lreg]) for k=1:lreg:(n-lreg)]))
@@ -142,7 +178,9 @@ function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5,verb
 
     pts=((wdw+1):(n-wdw))[select];
     verbose && println("Fitting $(length(pts)) Points.")
-
+    push!(pts,1);
+    push!(pts,n);
+    
     # polynomial fitting
     coeffs=polyfit(pts/n,out.dat[pts],order)
     verbose && println("Coefficients: $coeffs")
@@ -151,9 +189,12 @@ function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32,order=5,verb
     verbose && println("Residual: $res")
 
     out.dat .-= horner(collect(1:n)/n,coeffs)
-
-    return (out)
-
+    
+    if output==:points
+        return([pos2ind(spect,p) for p in pts])
+    else
+        return (out)
+    end
 end
 
 function BaseLineCorrect(spect::Data1D,ind::Array{Float64,1};order=5)
