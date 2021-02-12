@@ -117,7 +117,7 @@ function horner(x::Vector, c::Vector)
     return r
 end
 
-"""
+@doc raw"""
 ## Automatic Baseline Correction
 `BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32)` corrects the
 base line of `spect` using the algorithm
