@@ -229,8 +229,8 @@ The window is automatically calculated as ``\Delta\omega/2^6``, unless
 overridden by giving a value to the optional key `wdw`.
 
 """
-function medianBaseline(s::NMR.Data1D;wdw=length(s)>>6)
-    r=real.(NMR.val(s))
+function medianBaseline(s::NMR.Data1D{Tdata,Tindex};wdw=length(s)>>6) where { Tdata<:Real, Tindex}
+    r=s.dat
     L=length(r)
     b=zeros(L)
     c=zeros(L)
@@ -245,7 +245,9 @@ function medianBaseline(s::NMR.Data1D;wdw=length(s)>>6)
     return NMR.Data1D(c,s.istart,s.istop)
 end
 
-
+function medianBaseline(s;opts...)
+    return medianBaseline(real(s))+im*medianBaseline(imag(s);opts...)
+end
 
 
 """
@@ -285,59 +287,44 @@ end
 import Base.*, Base./, Base.+,Base.-,Base.abs
 
 function *(d::Data1D,n::Number)
-    c=deepcopy(d);
-    c.dat .*= n;
-    return c
+    c = n * d.dat;
+    return Data1D(c,d.istart,d.istop)
 end
 
 *(n::Number,d::Data1D)=d*n
 
 function *(d1::Data1D,d2::Data1D)
 	ind(d1) == ind(d2) || error("Data1D objects incompatible for multiplication")
-	c=deepcopy(d1);
-	c.dat = d1.dat .* d2.dat
-	return c
+	return Data1D(d1.dat.*d2.dat,d1.istart,d1.istop)
 end
 
 function /(d::Data1D,n::Number)
-    c=deepcopy(d);
-    c.dat ./= n;
-    return c
+    return Data1D(d.dat./n,d.istart,d.istop)
 end
 
 function /(d1::Data1D,d2::Data1D)
 	ind(d1) == ind(d2) || error("Data1D objects incompatible for division")
-	c=deepcopy(d1);
-	c.dat = d1.dat ./ d2.dat
-	return c
+	return Data1D(d1.dat./d2.dat,d1.istart,d1.istop)
 end
 
 function +(d::Data1D,n::Number)
-    c=deepcopy(d);
-    c.dat .+= n;
-    return c
+    return Data1D(n.+d.dat,d.istart,d.istop)
 end
 
 +(n::Number,d::Data1D)=d+n
 
 function +(d1::Data1D,d2::Data1D)
 	ind(d1) == ind(d2) || error("Data1D objects incompatible for addition")
-	c=deepcopy(d1);
-	c.dat = d1.dat .+ d2.dat
-	return c
+	return Data1D(d1.dat.+d2.dat,d1.istart,d1.istop)
 end
 
 function -(d::Data1D,n::Number)
-    c=deepcopy(d);
-    c.dat .-= n;
-    return c
+    return Data1D(-n.+d.dat,d.istart,d.istop)
 end
 
 function -(d1::Data1D,d2::Data1D)
 	ind(d1) == ind(d2) || error("Data1D objects incompatible for subtraction")
-	c=deepcopy(d1);
-	c.dat = d1.dat .- d2.dat
-	return c
+	return Data1D(d1.dat.-d2.dat,d1.istart,d1.istop)
 end
 
 function abs(d::Data1D)
@@ -392,6 +379,24 @@ function hard_shift(d::Data1D,δ::Number)
     end
     
     return Data1D(ndata,nstart,nstop)
+end
+
+import Base.real, Base.imag, Base.abs, Base.angle
+
+function Base.real(s::NMR.Data1D)
+    return(NMR.Data1D(real.(s.dat),s.istart,s.istop))
+end
+
+# function Base.abs(s::NMR.Data1D)
+#     return(NMR.Data1D(abs.(s.dat),s.istart,s.istop))
+# end
+
+function Base.imag(s::NMR.Data1D)
+    return(NMR.Data1D(imag.(s.dat),s.istart,s.istop))
+end
+
+function Base.angle(s::NMR.Data1D)
+    return(NMR.Data1D(angle.(s.dat),s.istart,s.istop))
 end
 
 #end

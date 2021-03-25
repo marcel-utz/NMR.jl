@@ -21,7 +21,7 @@ import Pkg
    include("Varian.jl")
 
   function __init__()
-    println("Module NMR v0.6.4\n(c)mu 2018-2021");
+    println("Module NMR v0.6.5a\n(c)mu 2018-2021");
   end
 
 end
