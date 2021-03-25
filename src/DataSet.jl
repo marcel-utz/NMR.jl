@@ -10,6 +10,7 @@ export integral,derivative,set!
 export plot,plot!
 export length,shift,hard_shift
 export interp
+export medianBaseline
 
 ENV["GKS_ENCODING"]="utf-8"
 import Plots
@@ -205,6 +206,46 @@ function BaseLineCorrect(spect::Data1D,ind::Array{Float64,1};order=5)
     out.dat .-= horner(collect(1:n)/n,coeffs)
     return(out)
 end
+
+
+wrap(n,l)=[mod(k,l) for k in n]
+
+function extrema(X::Array{Float64,1})
+    Y=Array{Float64,1}()
+    for k=2:(length(X)-1)
+        if (X[k]>X[k-1] && X[k]>X[k+1]) || X[k]<X[k-1] && X[k]<X[k+1]
+            push!(Y,X[k])
+        end
+    end
+    return Y
+end
+
+@doc raw"""
+    function medianBaseline(s::NMR.Data1D;wdw=length(s)>>6)
+
+Compute baseline for the real part of `s` by the algorithm of M. S. Friedrichs,
+*Journal of Biomolecular NMR*,  **5** (1995) 147  153.
+The window is automatically calculated as ``\Delta\omega/2^6``, unless
+overridden by giving a value to the optional key `wdw`.
+
+"""
+function medianBaseline(s::NMR.Data1D;wdw=length(s)>>6)
+    r=real.(NMR.val(s))
+    L=length(r)
+    b=zeros(L)
+    c=zeros(L)
+    for k=1:L
+        b[k]=median(extrema(r[ wrap(k.+(-wdw:wdw),1:L)]))
+    end
+    gauss=exp.(-((wdw:wdw)./wdw).^2)
+    gauss=gauss/sum(gauss)
+    for k=1:length(r)
+        c[k]=sum(gauss.*b[wrap(k.+(-wdw:wdw),1:L)])/(2*wdw+1)
+    end
+    return NMR.Data1D(c,s.istart,s.istop)
+end
+
+
 
 
 """
