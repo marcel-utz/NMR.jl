@@ -97,7 +97,7 @@ function AutoPhaseCorrect(s::NMR.Data1D;exclude=false,threshold=10)
     pind = [NMR.pos2ind(s,k) for k in ppos]
     pphase=[angle(s1.dat[p]) for p in ppos]
     α=NMR.polyfit(pind,unwrap(pphase),1)
-    ## print(α,"\n")
+    # print(α,"\n")
     s3=NMR.PhaseCorrect(s1,Ph0=-α[1],Ph1=-α[2])
     return s3
 end

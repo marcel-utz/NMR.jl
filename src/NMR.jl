@@ -1,3 +1,16 @@
+@doc raw"""
+    module NMR
+
+provides routines for processing 1D NMR spectra, as well as for simple Hilbert space
+spin dynamics simulations. 
+
+### Version History
+
+#### v0.6.5
+- added `medianBaseline()` for baseline correction
+- added an entry for DSS in the HMDB table
+
+"""
 module NMR
 
 import Pkg
@@ -21,7 +34,7 @@ import Pkg
    include("Varian.jl")
 
   function __init__()
-    println("Module NMR v0.6.5a\n(c)mu 2018-2021");
+    println("Module NMR v0.6.5\n(c)mu 2018-2021");
   end
 
 end
