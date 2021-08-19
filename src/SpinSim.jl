@@ -231,7 +231,7 @@ function RungeKutta(dw::Real,n::Integer,H,rho0::Array{T2,2},t0::Real,obs;StepFac
    for k=1:StepFactor*n
         if(k%StepFactor==1)
             for l=1:nobs
-              a[j,l]=trace(obs[l]*rho);
+              a[j,l]=tr(obs[l]*rho);
             end
             j=j+1;
         end
