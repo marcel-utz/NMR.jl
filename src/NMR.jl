@@ -30,6 +30,8 @@ import Pkg
    include("Peaks.jl")
    include("HMDB.jl")
 
+   include("ProcessBNF.jl")
+
    include("Bruker.jl")
    include("Varian.jl")
 
