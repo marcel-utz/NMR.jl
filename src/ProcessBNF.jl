@@ -12,8 +12,13 @@ using DataFrames
 import CSV
 using Dates
 import NMR
+using LsqFit
+import Dates
+import Plots
+using Distributions
+using Statistics
 
-export process_spectra, generate_protocol
+export process_spectra, generate_protocol,rate_plot, linearRegP
 
 
 """
@@ -107,5 +112,51 @@ function generate_protocol(fname)
             
 end
 
+        
+        
+"""
+    function rate_plot(protocol::DataFrame,compound::String; stride=50, model=(t,p)->p[1].+p[2].*t)
 
+compute linear fits to segments of the data of length `stride`, and return a tuple `(fits,c)`, where
+`c` is a plot of the concentration of `compound` vs time, and `fits` is a vector of `LsqFit` objects
+containing information on the fit in each of the segments.
+"""
+function rate_plot(protocol::DataFrame,compound::String; stride=50, model=(t,p)->p[1].+p[2].*t)
+    ydata=protocol[!,compound]
+    xdata=Dates.value.(protocol[!,"DateTime"].-protocol[1,"DateTime"]) ./ 3.6e6
+        
+    p0=[1.0,-1.0]
+    c=Plots.plot(layout=[1,1],size=(500,600),dpi=200,legend=false)
+    a=Plots.plot!(c,xdata,ydata,xlabel="Time [h]",ylabel="Concentration [mM]",xlims=[0,xdata[end]],label=compound,subplot=1,link=:x)
+    fits=Array{Any,1}()
+
+    for k=1:stride:(length(ydata))
+        rng=k:(k+stride-1)
+        f1=curve_fit(model,xdata[rng].-xdata[k],ydata[rng],p0)
+        Plots.plot!(c,xdata[rng],model(xdata[rng].-xdata[k],f1.param),linewidth=2,linecolor=:red,label=false,link=:x,subplot=1)
+        push!(fits,f1)
+    end
+
+    b=Plots.plot!(c,xdata[(stride>>1):stride:end],[f.param[2] for f in fits],
+        seriestype=:scatter,err=[margin_error(f,0.1)[2] for f in fits],
+        xlims=[0,xdata[end]],
+        xlabel="Time [h]",
+        ylabel="Rate [mM/h]",
+        label=compound,link=:x,subplot=2)
+
+    return (fits,c)
+        
+end
+        
+"""
+        function linearRegP(f)
+        
+compute p-value for linear regression fit `f`, which must be a result of a linear
+        regression through `LsqFit.jl`, with parameter set intercept,slope.
+"""
+function linearRegP(f)
+        F=((var(f.jacobian*f.param.+f.resid)-var(f.resid))/var(f.resid))*(length(f.resid)-2)
+        p=1-cdf(FDist(1,length(f.resid)-2),F)
+end
+        
 end
