@@ -52,10 +52,10 @@ function generate_protocol(fname)
 
     d=readdir(fname)
 
-    boxf=findfirst(x->match(r"^box-[0-9]*\.txt",x)!=nothing,d)
-    protof=findfirst(x->match(r"^labsmith-[0-9]*\.txt",x)!=nothing,d)
+    boxf=findfirst(x->match(r"^box.*\.txt",x)!=nothing,d)
+    protof=findfirst(x->match(r"^labsmith.*\.txt",x)!=nothing,d)
     
-    # @show d[[boxf,protof]]
+    @show d[[boxf,protof]]
 
     # clean up labsmith protocol file
     
