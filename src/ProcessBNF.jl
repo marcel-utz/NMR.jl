@@ -18,7 +18,7 @@ import Plots
 using Distributions
 using Statistics
 
-export process_spectra, generate_protocol,rate_plot, linearRegP
+export process_spectra, generate_protocol,rate_plot, linearRegP, gaussFilter
 
 
 """
@@ -27,13 +27,13 @@ export process_spectra, generate_protocol,rate_plot, linearRegP
 process the FID contained in the file `dataStore`*`dataLocation`/`n`. 
 Returns a `Data1D` object with the processed spectrum.
 """
-function process_fid(n,dataStore,dataLocation)
+function process_fid(n,dataStore,dataLocation;Ph0=2.95,Ph1=0)
         SW = 19.8269803808675;
         SW_h= 600*SW;
         d=NMR.readBrukerFID(dataStore * dataLocation * "/$(n)/fid")[77:end];
         fid=NMR.Data1D(d,0.,length(d)/SW_h);
         spect=NMR.FourierTransform(fid,SI=16384,PPM=600.,CTR=4.82,LB=1.0π)
-        spect=NMR.PhaseCorrect(spect,Ph0=2.95,Ph1=-0)
+        spect=NMR.PhaseCorrect(spect,Ph0=Ph0,Ph1=Ph1)
         spect=NMR.cut(spect,0.,10.)
         spect=NMR.BaseLineCorrect(spect,kfactor=4.5,regions=256,order=31)
         #spect-=NMR.medianBaseline(spect)
@@ -126,7 +126,7 @@ function rate_plot(protocol::DataFrame,compound::String; stride=50, model=(t,p)-
     xdata=Dates.value.(protocol[!,"DateTime"].-protocol[1,"DateTime"]) ./ 3.6e6
         
     p0=[1.0,-1.0]
-    c=Plots.plot(layout=[1,1],size=(500,600),dpi=200,legend=false)
+    c=Plots.plot(layout=(2,1),size=(500,600),dpi=200,legend=false)
     a=Plots.plot!(c,xdata,ydata,xlabel="Time [h]",ylabel="Concentration [mM]",xlims=[0,xdata[end]],label=compound,subplot=1,link=:x)
     fits=Array{Any,1}()
 
@@ -157,6 +157,18 @@ compute p-value for linear regression fit `f`, which must be a result of a linea
 function linearRegP(f)
         F=((var(f.jacobian*f.param.+f.resid)-var(f.resid))/var(f.resid))*(length(f.resid)-2)
         p=1-cdf(FDist(1,length(f.resid)-2),F)
+end
+
+"""
+Provide constant-padded convolution of input vector f with Gaussian kernel
+of length 2n+1, covering range from -3 sigma to +3 sigma
+"""
+function gaussFilter(f,n)
+    kernel=[exp(-4.5k^2/n^2) for k=-n:n]
+    padded=vcat(first(f)*ones(n),f,last(f)*ones(n))
+    kernel=kernel./sum(kernel)
+    smooth=[sum(kernel .* padded[k:(k+(2n))]) for k=1:length(f)]
+    return smooth
 end
         
 end
