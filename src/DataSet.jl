@@ -55,12 +55,16 @@ function val(d::Data1D)
     return d.dat
 end
 
-
 function val(d::Data1D,ind)
-    i1=(ind-d.istart)*length(d.dat)/(d.istop-d.istart)
-    p1=floor(Int64,i1)+1
+    i1=(ind-d.istart)*(length(d.dat))/(d.istop-d.istart)
+    p1=floor(Int64,i1+1)
     ic=i1-p1+1
-    return ((1-ic)*d.dat[p1]+ic*d.dat[p1+1])
+    p2 = p1+1
+    if p2>length(d.dat) # this ugly hack is needed in case p1 happens to be the
+                        # last point in the vector 
+        p2=p1
+    end
+    return ((1.0-ic)*d.dat[p1]+ic*d.dat[p2])
 end
 
 function cut(d::Data1D,i1,i2)
