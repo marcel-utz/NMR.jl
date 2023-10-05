@@ -1,6 +1,6 @@
 #module Bruker
 
-export readBrukerFID
+export readBrukerFID, readBrukerParameterFile
 
 function readBrukerFID(f::IOStream; format=Float64)
   data = Array{format,1}([])
@@ -21,6 +21,56 @@ function readBrukerFID(s::String;opts...)
     fid=readBrukerFID(f;opts...)
     close(f)
     return fid
+end
+
+function numparse(x)
+    if tryparse(Int64,x) != nothing
+        return parse(Int64,x)
+    elseif tryparse(Float64,x) !=nothing
+        return parse(Float64,x)
+    else
+        return x
+    end
+end
+
+"""
+`readBrukerParameterFile(s::String)`
+
+reads a Bruker JCAMP-DX parameter file, and returns a dict with the values. Arrays such as D0 D1 D2 etc
+are returned as a Julia array. Note that the Bruker parameter `D0` appears as `param["D"][1]`
+due to Julia using 1-based arrays.
+"""
+function readBrukerParameterFile(s::String)
+  f=open(s,"r")
+  reComment= r"(?<line>.*)\$\$(?<comment>.*)$"      # match line with comment
+  re= r"^\s*##[$]?(?<keyword>\S*)=\s*(?<value>.*)"  # match general JCAMP-DX data record line
+  reArray= r"\s*\((?<start>\d*)\.\.(?<stop>\d*)\)"  # match Bruker array line (with index limits; array contents are in the subsequent lines)
+
+  params=Dict{String,Any}()
+
+  while !eof(f)
+      l=readline(f)
+      m=match(reComment,l)
+      if m==nothing
+          lnc=l
+      else
+          lnc=m[:line]
+      end
+      if occursin(re,lnc)
+          m=match(re,lnc)
+          if occursin(reArray,m[:value])
+              am=match(reArray,m[:value])
+              arstr = strip(readuntil(f,"#"))
+              skip(f,-1)
+              ar = split(arstr,r"\s+")
+              params[m[:keyword]] = map(x->numparse(x),ar)
+          else
+              params[m[:keyword]] = numparse(m[:value])
+          end
+      end
+  end
+  close(f)
+  return params
 end
 
 #end

@@ -1,4 +1,3 @@
-
 module HMDB
 
 using LightXML
@@ -9,7 +8,6 @@ import LinearAlgebra
 
 global HMDB_dir
 global hmdb_root
-
 
 mutable struct HMDBpeaks
     spectID::String

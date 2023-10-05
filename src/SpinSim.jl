@@ -3,6 +3,7 @@
 #using NMR.PauliMatrix
 using SparseArrays
 using LinearAlgebra
+import Arpack
 
 export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
        Commutator,Trc,RungeKutta,Propagate,Spectrum
@@ -306,10 +307,10 @@ arrays. `tol` is a cutoff; transitions with absolute amplitudes less than
 this value are suppressed.
 """
 function Spectrum(ρ,H,Ψ;tol=1e-3)
-    F=eigen(collect(H));  # compute eigenvalues and eigenvectors of Hamiltonian
-    Q=sparse(F.vectors) ;
-    NMR.chop!(Q)
-    D=real(F.values) ;
+    n,m=size(H)
+    D,Fv=Arpack.eigs(H,nev=min(n,200),ritzvec=true);  # compute eigenvalues and eigenvectors of Hamiltonian
+    Q=sparse(Fv) ;
+    NMR.chop!(Q) ;
     F=Q'*Ψ*Q;
     ρe=Q'*ρ*Q;
     freqs=Array{Float64,1}([])
