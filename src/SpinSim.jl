@@ -308,7 +308,11 @@ this value are suppressed.
 """
 function Spectrum(ρ,H,Ψ;tol=1e-3)
     n,m=size(H)
-    D,Fv=Arpack.eigs(H,nev=min(n,200),ritzvec=true);  # compute eigenvalues and eigenvectors of Hamiltonian
+    if n<256
+        D,Fv=eigen(collect(H))
+    else
+        D,Fv=Arpack.eigs(H,nev=100,ritzvec=true);  # compute eigenvalues and eigenvectors of Hamiltonian
+    end
     Q=sparse(Fv) ;
     NMR.chop!(Q) ;
     F=Q'*Ψ*Q;
@@ -335,7 +339,10 @@ range `r`, which can be either an array or a range. lw` is the line width.
 A `Data1D` object is returned.
 """
 function PeakSpect(p,i,r;lw=0.0001)
-    s=sum([i[k]*NMR.clorentzian.(p[k],(1/lw)^2,r) for k=1:length(p)])
+    s=zeros(ComplexF64,length(r))
+    for k=1:length(p)
+        s .+= i[k].*NMR.clorentzian.(p[k],(1/lw)^2,r)
+    end
     return NMR.Data1D(s,first(r),last(r))
 end
 
