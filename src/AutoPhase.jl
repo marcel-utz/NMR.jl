@@ -27,10 +27,10 @@ function penalty(x)
 end
 
 # this is the minimisation target for automatic phase correction
-function goalfun(x,spect,γ=1.e-5)
-    piv=(spect.istart+spect.istop)/2
-    c=PhaseCorrect(spect,Ph0=x[1],Ph1=x[2],Pivot=piv);
-    return entropy(derivative(c))+γ*penalty(real.(val(c)));
+function goalfun(x,spect,γ=0.0e-5)
+    piv=0.5*(spect.istop+spect.istart)
+    c=PhaseCorrect(spect,Ph0=x[1]*10,Ph1=x[2],Pivot=piv);
+    return entropy(c)+γ*penalty(real.(val(c)));
 end
 
 """
@@ -41,12 +41,12 @@ using a minimum entropy algorithm  by Chen et al. in
 It uses the Nelder-Mead algorithm, as implemented in the `Optim.jl`
 package.
 """
-function AutoPhaseCorrectChen(spect::Data1D;verbose=false,γ=1.e-5)
-  piv=(spect.istart+spect.istop)/2
-  result=Optim.optimize(x->goalfun(x,spect,γ),[π/2,0.],Optim.NelderMead());
+function AutoPhaseCorrectChen(spect::Data1D;verbose=false,γ=0.0)
+  piv=0.5*(spect.istop+spect.istart)
+  result=Optim.optimize(x->goalfun(x,spect,γ),[0.1,0.2],Optim.NelderMead(),Optim.Options(show_trace=false,g_tol=1.0e-9));
   if verbose print(result) end;
   pc=Optim.minimizer(result);
-  scorr = PhaseCorrect(spect,Ph0=pc[1],Ph1=pc[2],Pivot=piv);
+  scorr = PhaseCorrect(spect,Ph0=pc[1]*10,Ph1=pc[2],Pivot=piv);
   if (real(integral(scorr))<0.0) scorr = -1.0*scorr end;
   return scorr ;
 end
@@ -97,7 +97,7 @@ function AutoPhaseCorrect(s::NMR.Data1D;exclude=false,threshold=10)
     pind = [NMR.pos2ind(s,k) for k in ppos]
     pphase=[angle(s1.dat[p]) for p in ppos]
     α=NMR.polyfit(pind,unwrap(pphase),1)
-    ## print(α,"\n")
+    # print(α,"\n")
     s3=NMR.PhaseCorrect(s1,Ph0=-α[1],Ph1=-α[2])
     return s3
 end

@@ -1,14 +1,4 @@
 # NMR
-This project is about providing a set of routines and tools for NMR spectroscopy and imaging in Julia. It is currently in
-an early experimental phase, and its structure and interface may change radically as the project evolves.
+This package provides a set of routines and tools for NMR spectroscopy and imaging in Julia. 
 
-At this point, it provides:
-- a simple plotting interface ```SimplePlot.jl```
-- a home-built contour plotting routine: ```Contour.jl```
-- a data type to represent graphical information, with easy output to SVG: ```SimpleGraphics.jl```
-- routines supporting Hilbert space simulations of multi-spin systems: ```SpinSim.jl```
-- data import from Bruker (```Bruker.jl```) and from Varian (```Varian.jl```)
-- a data type to store digitally sampled data (1D spectra and FIDs): ```DataSet.jl```
- 
-
-Use at your own risk :) !
+(c)2018-2025 Utz Research Group

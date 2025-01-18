@@ -1,4 +1,5 @@
 #module PauliMatrix
+using SparseArrays
 
 export Sx,Sy,Sz,Sp,Sm,Id
 

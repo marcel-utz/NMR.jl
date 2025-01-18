@@ -1,4 +1,3 @@
-
 module HMDB
 
 using LightXML
@@ -9,7 +8,6 @@ import LinearAlgebra
 
 global HMDB_dir
 global hmdb_root
-
 
 mutable struct HMDBpeaks
     spectID::String
@@ -36,7 +34,7 @@ function HMDBpeaks(spectrum::XMLElement; accession="", name="", normalisation=1)
         ssolvent=content(find_element(spectrum,"solvent"));
         sfreq=content(find_element(spectrum,"frequency"));
         spH=content(find_element(spectrum,"sample-ph"));
-	sid=content(find_element(spectrum,"id"));
+        sid=content(find_element(spectrum,"id"));
         pks=[parse(Float64,content(find_element(x,"chemical-shift"))) for x in child_elements(peaks)];
         ints=[parse(Float64,content(find_element(x,"intensity"))) for x in child_elements(peaks)];
         ints .*= normalisation/sum(ints)
@@ -166,9 +164,9 @@ end
 
 compute a reference spectrum over `range` using the peak positions in
 reference spectrum `name`. A Lorentzian line with half width `lw` is used. The
-reference spectrum is returned as a real `Data1D` object.
+reference spectrum is returned as a real `Data1D` object, unless the option `complex=true` is given.
 """
-function refSpectrum(name::String,range::Array{Float64,1};lw=0.005,excl=x->false)
+function refSpectrum(name::String,range::Array{Float64,1};lw=0.005,excl=x->false, complex=false)
 	p=refPeaks[name]
   ints=[]
   pks=[]
@@ -181,14 +179,20 @@ function refSpectrum(name::String,range::Array{Float64,1};lw=0.005,excl=x->false
         npeaks+=1
       end
   end
-	vals = sum(k -> ints[k]*[NMR.lorentzian(pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
-	d=NMR.Data1D{Float64,Float64}(vals,minimum(range),maximum(range))
+    if (complex)
+        vals = sum(k -> ints[k]*[NMR.clorentzian(pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
+        d=NMR.Data1D{Complex{Float64},Float64}(vals,minimum(range),maximum(range))
+   else
+        vals = sum(k -> ints[k]*[NMR.lorentzian(pks[k],1.0/lw^2,x) for x in range], 1:npeaks)
+        d=NMR.Data1D{Float64,Float64}(vals,minimum(range),maximum(range))
+   end
 	return d
 end
 
 function refSpectrum(name::String,d::NMR.Data1D;opts...)
 	return refSpectrum(name,collect(NMR.ind(d));opts...)
 end
+
 
 """
 	decompositionMatrix(names,range)

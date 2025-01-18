@@ -3,9 +3,10 @@
 #using NMR.PauliMatrix
 using SparseArrays
 using LinearAlgebra
+import Arpack
 
-export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
-       Commutator,Trc,RungeKutta,Propagate
+export Kron,⊗,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
+       Commutator,Trc,RungeKutta,Propagate,Spectrum
 
 function Kron(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
     (p,q)=size(A)
@@ -124,6 +125,9 @@ function Kron(A)
     return(A)
 end
 
+
+⊗(x,y) = Kron(x,y)
+
 speye(k::Integer) = sparse(I,k,k)
 
 SpinOp(n::Integer,S,k::Integer) = Kron(speye(2^(k-1)),S,speye(2^(n-k)))
@@ -231,7 +235,7 @@ function RungeKutta(dw::Real,n::Integer,H,rho0::Array{T2,2},t0::Real,obs;StepFac
    for k=1:StepFactor*n
         if(k%StepFactor==1)
             for l=1:nobs
-              a[j,l]=trace(obs[l]*rho);
+              a[j,l]=tr(obs[l]*rho);
             end
             j=j+1;
         end
@@ -294,5 +298,59 @@ function Propagate(dw::Real,n::Integer,P,rho0,t0::Real,obs)
     end
     return (a,rho)
 end
+
+
+@doc raw"""
+        function Spectrum(ρ,H,Ψ;tol=1e-3)
+
+compute the frequencies and intensities of the spectrum given by the
+the initial density operator ρ, the Hamiltonian H, and the observation operator
+Ψ. The results are returned as a tuple `(freq,int)` of two one-dimensional
+arrays. `tol` is a cutoff; transitions with absolute amplitudes less than
+this value are suppressed.
+"""
+function Spectrum(ρ,H,Ψ;tol=1e-3)
+    n,m=size(H)
+    if n<256
+        D,Fv=eigen(collect(H))
+    else
+        D,Fv=Arpack.eigs(H,nev=100,ritzvec=true);  # compute eigenvalues and eigenvectors of Hamiltonian
+    end
+    Q=sparse(Fv) ;
+    NMR.chop!(Q) ;
+    F=Q'*Ψ*Q;
+    ρe=Q'*ρ*Q;
+    freqs=Array{Float64,1}([])
+    ints=Array{Complex{Float64},1}([])
+    for n=1:length(D),m=1:length(D)
+        c=F[m,n]*ρe[m,n];
+        if(abs(c)>tol)
+            push!(freqs,D[m]-D[n]);
+            push!(ints,c)
+        end
+    end
+    return (freqs,ints)
+end
+
+
+@doc raw"""
+    function PeakSpect(p,i,r;lw=0.0001)
+
+compute the the spectrum with Lorentzian peaks at locations given in
+array `p` and (complex) amplitudes in array `i`, over the
+range `r`, which can be either an array or a range. lw` is the line width.
+A `Data1D` object is returned.
+"""
+function PeakSpect(p,i,r;lw=0.0001)
+    s=zeros(ComplexF64,length(r))
+    for k=1:length(p)
+        s .+= i[k].*NMR.clorentzian.(p[k],(1/lw)^2,r)
+    end
+    return NMR.Data1D(s,first(r),last(r))
+end
+
+
+
+
 
 #end
