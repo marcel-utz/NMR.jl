@@ -5,7 +5,7 @@ using SparseArrays
 using LinearAlgebra
 import Arpack
 
-export Kron,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
+export Kron,⊗,SpinOp,TwoSpinOp,OpJstrong,OpJweak,
        Commutator,Trc,RungeKutta,Propagate,Spectrum
 
 function Kron(A::Array{T1,2},B::Array{T2,2}) where {T1,T2}
@@ -124,6 +124,9 @@ end
 function Kron(A)
     return(A)
 end
+
+
+⊗(x,y) = Kron(x,y)
 
 speye(k::Integer) = sparse(I,k,k)
 
