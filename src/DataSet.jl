@@ -28,9 +28,15 @@ import Base.iterate
 #           the internal storage array
 
 
+"""
+    struct Data1D{Tdata,Tindex} 
 
+Data structure to hold a 1D NMR dataset either in the time or the frequency domain. `Data1D` objects
+store an *index* (range of time points or frequency points) along with the corresponding y-axis *data*.
+`Data1D` objects can be added and subtracted from one another, as long as their  indices match.
+"""
 mutable struct Data1D{Tdata,Tindex}
-   dat::Array{Tdata,1}
+   dat::Tdata
    istart::Tindex
    istop::Tindex
 end
@@ -77,7 +83,9 @@ resolution(d::Data1D) = (d.istop-d.istart)/length(d.dat)
 
 
 """
-`FourierTransform(d::Data1D)` performs an FFT assuming that the
+    FourierTransform(d::Data1D) 
+    
+performs an FFT assuming that the
 input data set `d` is a free induction decay, and returns
 a `DataSet` object with the resulting complex data.
 """
