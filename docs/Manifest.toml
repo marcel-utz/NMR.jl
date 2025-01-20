@@ -2,7 +2,7 @@
 
 julia_version = "1.10.1"
 manifest_format = "2.0"
-project_hash = "d51a46b1ae43a22b7e55c8dbcb50a03c4849bc0e"
+project_hash = "a9b34e9d7033b3a25b0bb91523bd0f1e2114e03e"
 
 [[deps.ANSIColoredPrinters]]
 git-tree-sha1 = "574baf8110975760d391c710b6341da1afa48d8c"
@@ -811,10 +811,8 @@ uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
 version = "7.8.3"
 
 [[deps.NMR]]
-deps = ["Arpack", "CSV", "DataFrames", "Dates", "Distributions", "FFTW", "HTTP", "JSON", "LightXML", "LinearAlgebra", "LsqFit", "Optim", "Pkg", "Plots", "Printf", "SparseArrays", "Statistics"]
-git-tree-sha1 = "cb532a4ea1405d433660cf52de65f094db2f535b"
-repo-rev = "master"
-repo-url = "https://github.com/marcel-utz/NMR.jl"
+deps = ["Arpack", "CSV", "DataFrames", "Dates", "Distributions", "FFTW", "GR", "HTTP", "JSON", "LightXML", "LinearAlgebra", "LsqFit", "Optim", "Pkg", "Plots", "Printf", "SparseArrays", "Statistics"]
+path = ".."
 uuid = "29608d60-07d6-11ea-0b49-239cc88e4b20"
 version = "0.9.0"
 

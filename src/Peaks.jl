@@ -1,6 +1,11 @@
 import LightXML
 export peaks, shift, PeakStruct, ToXML
 
+"""
+    mutable struct PeakStruct
+
+Data structure to hold a peak list.
+"""
 mutable struct PeakStruct
     positions::Array{Float64,1}
     heights::Array{Float64,1}
@@ -21,7 +26,8 @@ function shift(p::PeakStruct, delta::Real)
 end
 
 """
-`smooth(d::Data1D,n=10)`
+    smooth(d::Data1D,n=10)
+
 returns a smoothed version of the input data set `d`, using
 convolution with a Gaussian peak.
 """
@@ -45,7 +51,8 @@ clorentzian(x0::Float64,σ::Float64,x::Float64) =  1.0/π*sqrt(σ)*(1.0+sqrt(σ)
 
 
 """
-`peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)`
+    peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
+
 identifies the peaks in `dinput`. Peak positions are located roughly
 by searching for the downward zero crossings of the first derivative.
 The data points surrounding each peak are then used for a quadratic regression,
@@ -53,16 +60,8 @@ from which the position, curvature, and height of the maximum are interpolated.
 The signal `dinput` is then decomposed into a linear superposition of Lorentzian
 peaks at the determined positions and with the determined curvatures.
 
-`peaks()` returns a data structure
-```
-struct PeakStruct
-    positions::Array{Float64,1}
-    heights::Array{Float64,1}
-    widths::Array{Float64,1}
-    intensities::Array{Float64,1}
-    deconvolution::Data1D
-  end
-```
+`peaks()` returns a `PeakStruct` data structure
+
 
 where `positions` and `heights` are the interpolated peak positions and heights,
 respectively; `widths` are the peak curvatures, which correspond

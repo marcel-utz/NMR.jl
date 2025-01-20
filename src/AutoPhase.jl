@@ -8,14 +8,15 @@ export entropy, AutoPhaseCorrect, AutoPhaseCorrectChen
 ent(x) = x*log(x)
 
 """
-`entropy(spect::Data1D)` computes the entropy in the real part of an
+`entropy(spect::Data1D)` computes the entropy of the first derivative
+in the real part of an
 NMR spectrum as defined by Chen et al. in
 *Journal of Magnetic Resonance* **158** (2002) 164–168.
 This quantity can be optimised with respect to zero- and first-order
 phase correction for automatic (unsupervised) phase correction.
 """
 function entropy(spect::Data1D)
-    h=abs.(real.(val(spect)))
+    h=abs.(real.(val(derivative(spect))))
     h/=sum(h)
     return -sum(ent.(h))
 end
@@ -69,13 +70,20 @@ function unwrap(a;p=π,tol=0.25)
 end
 
 """
-`AutoPhaseCorrect(spect::Data1D)`
+    AutoPhaseCorrect(spect::Data1D; exclude=false,threshold=10)
+
 performs zero- and first-order phase correction of `spect`
 using a the algorithm by van der Waals and Geerens,
 *Journal of Magnetic Resonance* **86** (1990) 127-154.
 It works by recognising the peaks in the magnitude mode spectrum
 and then representing the phase at each peak location
 through a linear regression.
+
+Passing a pair of indices to `exclude` disregards any peaks 
+between these two boundaries. This is useful in spectra that
+contain a solvent artefact that may not be phased correctly.
+
+`threshold` defines a threshold for peak detection (cf. `NMR.peaks()`).
 """
 function AutoPhaseCorrect(s::NMR.Data1D;exclude=false,threshold=10)
     # --- Step 1: basic phase adjustment
