@@ -812,7 +812,9 @@ version = "7.8.3"
 
 [[deps.NMR]]
 deps = ["Arpack", "CSV", "DataFrames", "Dates", "Distributions", "FFTW", "HTTP", "JSON", "LightXML", "LinearAlgebra", "LsqFit", "Optim", "Pkg", "Plots", "Printf", "SparseArrays", "Statistics"]
-path = ".."
+git-tree-sha1 = "cb532a4ea1405d433660cf52de65f094db2f535b"
+repo-rev = "master"
+repo-url = "https://github.com/marcel-utz/NMR.jl"
 uuid = "29608d60-07d6-11ea-0b49-239cc88e4b20"
 version = "0.9.0"
 

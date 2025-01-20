@@ -29,9 +29,9 @@ import Base.iterate
 
 
 """
-    struct Data1D{Tdata,Tindex} 
+    Data1D(f<:AbstractArray,start<:Real,stop<:Real) 
 
-Data structure to hold a 1D NMR dataset either in the time or the frequency domain. `Data1D` objects
+returns a data structure to hold a 1D NMR dataset either in the time or the frequency domain. `Data1D` objects
 store an *index* (range of time points or frequency points) along with the corresponding y-axis *data*.
 `Data1D` objects can be added and subtracted from one another, as long as their  indices match.
 """
