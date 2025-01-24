@@ -5,6 +5,9 @@ Special processing routines for back-and-forth pumping tissue slice culture expe
 
 `function process_spectra`
 `function generate_protocol`
+!!! warning "Internal use"
+    these routines are experimental, and intended for internal use in the Utz research group
+    only. You may use them at your own risk. Of course, feedback and suggestions are welcome.
 """
 module ProcessBNF
 

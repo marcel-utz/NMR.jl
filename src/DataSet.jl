@@ -6,7 +6,7 @@ using Statistics
 
 export Data1D,ind2pos,pos2ind,val,ind,cut
 export FourierTransform,PhaseCorrect,BaseLineCorrect
-export integral,derivative,set!
+export integral,integrate,derivative,set!
 export plot,plot!
 export length,shift,hard_shift
 export interp
@@ -45,23 +45,48 @@ Base.iterate(d::NMR.Data1D,state=1) =
     state > length(d) ? nothing :
       ((d.istart+state*(d.istop-d.istart)/(length(d)-1),d.dat[state]),state+1)
 
+"""
+    function ind2pos(d::Data1D,ind)
+
+returns the position (integer) on the horizontal axis that corresponds
+most closely to the value ìnd`.
+"""
 function ind2pos(d::Data1D,ind)
     return round(Int64,(ind-d.istart)*(length(d.dat)-1)/(d.istop-d.istart))+1
 end
+"""
+    function pos2ind(d::Data1D,i::Integer)
 
+returns the index (Real) of the `i`-th data point on the horizontal axis.
+"""
 function pos2ind(d::Data1D,pos::Integer)
    return ind(d)[pos]
 end
 
+"""
+    function ind(d::Data1D)
+
+returns the index (horizontal axis) of `d` as a linear range.
+"""
 function ind(d::Data1D)
 	return LinRange(d.istart,d.istop,length(d.dat))
 end
 
+"""
+    function val(d::Data1D)
+
+returns the array of amplitudes contained in `d`.
+""" 
 function val(d::Data1D)
     return d.dat
 end
 
-function val(d::Data1D,ind)
+"""
+    function val(d::Data1D,ind::Real)
+
+returns the interpolated value of `d` at the position `ind`.
+"""
+function val(d::Data1D,ind::Real)
     i1=(ind-d.istart)*(length(d.dat))/(d.istop-d.istart)
     p1=floor(Int64,i1+1)
     ic=i1-p1+1
@@ -72,18 +97,33 @@ function val(d::Data1D,ind)
     end
     return ((1.0-ic)*d.dat[p1]+ic*d.dat[p2])
 end
+"""
+    function cut(d::Data1D,i1,i2)
 
+returns a smaller data set, with start and stop indices given by `i1` and `i2`,
+respectively. If either lies outside the horizontal range of `d` an error
+is raised.
+!!! note Alignment
+        The limits of the resulting data set always align with the 
+        horizontal values of `d`. The limits may therefore not be
+        precisely the same as `i1` and `i2`.
+"""
 function cut(d::Data1D,i1,i2)
     p1=ind2pos(d,i1)
     p2=ind2pos(d,i2)
     return Data1D(d.dat[p1:p2],pos2ind(d,p1),pos2ind(d,p2))
 end
 
+"""
+    resolution(d::Data1D)
+
+returns the resolution of the horizontal axis of `d`.
+"""
 resolution(d::Data1D) = (d.istop-d.istart)/length(d.dat)
 
 
 """
-    FourierTransform(d::Data1D) 
+    FourierTransform(d::Data1DCTR=0.0, LB=0.0, SI=length(fid.dat), PPM=1,FFTSHIFT=true)) 
     
 performs an FFT assuming that the
 input data set `d` is a free induction decay, and returns
@@ -108,17 +148,23 @@ function FourierTransform(fid::Data1D;
 end
 
 """
-`PhaseCorrect(spect::Data1D;Ph0=0.0,Ph1=0.0,Pivot=0.0)`
-returns a phase corrected `DataSet`, using the values indicated.
+    PhaseCorrect(spect::Data1D;Ph0=0.0,Ph1=0.0,Pivot=0.0)
+
+returns a phase corrected `Data1D`, using the values indicated.
 The parameters are given in rad, k, and rad/k, where k are the units
 of the spectral domain (typically, Hz or ppm).
 """
 function PhaseCorrect(spect::Data1D;Ph0=0.0,Ph1=0.0,Pivot=0.0)
-    out=deepcopy(spect);
-    out.dat = spect.dat .* [exp(im*(Ph0+(k-Pivot)*Ph1)) for k=ind(spect)]
-    return out;
+    dat = spect.dat .* [exp(im*(Ph0+(k-Pivot)*Ph1)) for k=ind(spect)]
+    return Data1D(dat,spect.istart,spect.istop);
 end
 
+@doc raw"""
+    polyfit(x::Vector, y::Vector, deg::Int)
+
+return a vector of coefficients for a polynomial ``p(x)`` of degree `deg` such
+that ``p(x_k)\approx y_k``.
+"""
 polyfit(x::Vector, y::Vector, deg::Int) = pinv(collect(v ^ p for v in x, p in 0:deg)) * y
 
 function horner(x::Vector, c::Vector)
@@ -131,45 +177,44 @@ function horner(x::Vector, c::Vector)
 end
 
 @doc raw"""
-## Automatic Baseline Correction
-`BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32)` corrects the
-base line of `spect` using the algorithm
+    BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,wdw=32)
+    
+corrects the base line of `spect` using the algorithm
 by S. Golotvin, A. Williams, J. Magn. Reson. 146 (2000) 122-125.
-
-
 
 ### Optional Parameters:
 - `regions`: the number of regions the spectrum is divided into to estimate
    the noise variance. This should be chosen large enough so that at least one
    of these regions is free from signals, and shows a flat baseline. The 
-   variance ``\\sigma^2_{min}`` in this region is then used to distinguish signals and noise.
+   variance ``\sigma^2_{min}`` in this region is then used to distinguish signals and noise.
 
 - `wdw`: the window size around each data point that is used to decide whether the
   data point is part of a signal, or should be counted as base line. 
 
 - `kfactor`: a point will be counted as part of the baseline if and only if the local
-  variance in its window is less than `kfactor`*``\\sigma^2_{min}``.
+  variance in its window is less than `kfactor`*``\sigma^2_{min}``.
 
 - `output`: defaults to `:spectrum`. `output=:points` will return an array of points,
   which indicate baseline positions (locations free from peaks) as determined
   by the algorithm. This is useful in situations where a large number of similar
   spectra need to be processed.
 
-### Notes
-- if the input data is complex, the imaginary part is ignored,
-  and the result is always real.
+!!! note "Complex data"
+    if the input data is complex, the imaginary part is ignored,
+    and the result is always real.
 
-- the first and last point of `spect` are always used as part of the baseline. 
-  The first and last points of the output are therefore guaranteed to be zero. This
-  helps to keep the interpolation numerically stable.
+!!! note "First and last points"
+    the first and last point of `spect` are always used as part of the baseline. 
+    The first and last points of the output are therefore guaranteed to be zero. This
+    helps to keep the interpolation numerically stable.
 
 
-## Baseline Correction With Known Locations
+!!! note "Baseline Correction With Known Locations"
+    `BaseLineCorrect(spect::Data1D,pts::Array{Float64,1})`
+    uses the points in `pts` to determine the baseline. This should be a list
+    of positions in the spectrum that are known not to contain signal; it can be obtained
+    by using the option `output=:points` in the first method of `BaseLineCorrect()`. 
 
-`BaseLineCorrect(spect::Data1D,pts::Array{Float64,1})`
-uses the points in `pts` to determine the baseline. This should be a list
-of positions in the spectrum that are known not to contain signal; it can be obtained
-by using the option `output=:points` in the first method of `BaseLineCorrect()`. 
 
 """
 function BaseLineCorrect(spect::Data1D;regions=128,kfactor=5,lw=0.0,wdw=32,order=5,verbose=false,output=:spectrum)
@@ -241,8 +286,8 @@ The window is automatically calculated as ``\Delta\omega/2^6``, unless
 overridden by giving a value to the optional key `wdw`.
 
 """
-function medianBaseline(s::NMR.Data1D{Tdata,Tindex};wdw=length(s)>>6) where { Tdata<:Real, Tindex}
-    r=s.dat
+function medianBaseline(s::NMR.Data1D;wdw=length(s)>>6)
+    r=real(s.dat)
     L=length(r)
     b=zeros(L)
     c=zeros(L)
@@ -257,13 +302,15 @@ function medianBaseline(s::NMR.Data1D{Tdata,Tindex};wdw=length(s)>>6) where { Td
     return NMR.Data1D(c,s.istart,s.istop)
 end
 
-function medianBaseline(s;opts...)
-    return medianBaseline(real(s))+im*medianBaseline(imag(s);opts...)
-end
+# function medianBaseline(s;opts...)
+#    return medianBaseline(real(s))+im*medianBaseline(imag(s);opts...)
+# end
 
 
 """
-`integral(spect::Data1D)` computes the numerical integral of `spect` by
+    function integral(spect::Data1D)
+
+computes the numerical integral of `spect` by
 the trapezoid rule.
 """
 function integral(spect::Data1D)
@@ -271,10 +318,27 @@ function integral(spect::Data1D)
     return s*(spect.istop-spect.istart)/length(spect.dat)
 end
 
+"""
+    function integrate(spect::Data1D,flip=true)
+
+integrates the spectrum and returns the result as a `Data1D` object
+with the same horizontal axis. When `flip` is true, the integral
+runs in the negative axis direction (from large to small). This corresponds
+to the usual convention in NMR spectra.
+"""
+function integrate(spect::Data1D;flip=true)
+    inc=(spect.istop-spect.istart)/length(spect.dat)
+    if flip 
+        return Data1D(inc*reverse(cumsum(reverse(spect.dat))),spect.istart,spect.istop)
+    else
+        return Data1D(inc*cumsum(spect.dat),spect.istart,spect.istop)
+    end
+end
 
 """
-`derivative(spect::Data1D)` computes the derivative of `spect` and returns
-it as another Data1D object
+    derivative(spect::Data1D) 
+    
+computes the derivative of `spect` and returns it as another Data1D object.
 """
 function derivative(spect::Data1D)
     s=spect.dat
@@ -285,12 +349,16 @@ function derivative(spect::Data1D)
     return Data1D(d,spect.istart,spect.istop)
 end
 
+# function Plot(s::Data1D;opts...)
+#    return Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
+# end
 
-function Plot(s::Data1D;opts...)
-    return Plot(ind(s),real(val(s)),style=Dict(["stroke-width"=>"1"]),Reverse=[true,false];opts...)
-end
+"""
+    function set!(spect::Data1D,start,stop,value=0)
 
-
+Sets the vertical data in `spect` to the given value between
+the index values `start` and `stop`.
+"""
 function set!(spect::Data1D,start,stop,value=0)
     rge=ind2pos(spect,start):ind2pos(spect,stop)
     spect.dat[rge]=value
@@ -344,9 +412,23 @@ function abs(d::Data1D)
     return c
 end
 
+
+"""
+    function plot(d::Data1D;opts...)
+
+creates a 1D plot of `d`
+
+!!! warning "Deprecated"
+    The function `NMR.plot` is deprectated and will be removed
+    from future releases. Please use `Plots.plot` instead.
+
+"""
 function plot(d::Data1D;opts...)
 	return Plots.plot(real.(ind(d)),real.(val(d));opts...)
 end
+
+import Plots
+Plots.plot(d::Data1D;opts...) = NMR.plot(d;opts...)
 
 import Plots.RecipesBase.plot!
 
@@ -360,15 +442,20 @@ function length(d::Data1D)
 	return length(d.dat)
 end
 
+
+"""
+    function shift(d::Data1D,δ::Number)
+
+returns a `Data1D` object with the horizontal axis shifted by `δ`. No 
+resampling is done, the shift is mereley applied by changing the horizontal
+axis limits.
+"""
 function shift(d::Data1D,δ::Number)
-	c=deepcopy(d);
-	c.istart += δ
-	c.istop += δ
-	return c
+	return Data1D(d.dat, d.istart+δ,d.istop+δ)
 end
 
 """
-`function hard_shift(d::Data1D,δ::Number)`
+    function hard_shift(d::Data1D,δ::Number)
 
 shifts the data in `d` by `δ`. The data is re-interpolated as needed. The
 resulting `Data1D` object is guaranteed to have the same index as `d`, such that

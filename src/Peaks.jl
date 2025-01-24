@@ -62,7 +62,6 @@ peaks at the determined positions and with the determined curvatures.
 
 `peaks()` returns a `PeakStruct` data structure
 
-
 where `positions` and `heights` are the interpolated peak positions and heights,
 respectively; `widths` are the peak curvatures, which correspond
 to 1/FWHM line widths of the Lorentzian peaks. `intensities` are the
@@ -72,7 +71,8 @@ Finally, `deconvolution` contains the deconvoluted approximation to the
 original input signal.
 """
 function peaks(dinput::Data1D;threshold=1,athresh=1,regions=128)
-    d=smooth(dinput)
+    # d=smooth(dinput)
+    d=dinput
     dr=derivative(d);
     n=length(d.dat)
     δ=(d.istop-d.istart)/n

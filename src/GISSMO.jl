@@ -57,7 +57,12 @@ function Hamiltonian(system::XMLElement;freq=600.0,ctr=4.8,maxSpin=25)
     nspin,H
 end
 
+"""
+    function search(term::String)
 
+searches the online GISSMO database for `term` and returns a `JSON` object
+with the search result.
+"""
 function search(term::String)
     res=String(HTTP.request("GET","https://gissmo.bmrb.io/search?term=$(term)").body)
     return JSON.parse(res)

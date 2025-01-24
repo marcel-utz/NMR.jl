@@ -54,8 +54,9 @@ To convert the time-domain data into a spectrum, we use `NMR.FourierTransform`. 
 FourierTransform interprets the time domain in the `Data1D` object in seconds, and produces
 another `Data1D` object with a horizontal axis in Hz:
 ```@example brukerExpl
+import Plots
 spect=NMR.FourierTransform(d)
-NMR.plot(real(spect),xaxis=:flip,xlabel="frequency [Hz]")
+Plots.plot(real(spect),xaxis=:flip,xlabel="frequency [Hz]")
 Plots.savefig("plot-spec.svg"); nothing # hide
 ```
 ![](plot-spec.svg)
@@ -67,8 +68,9 @@ One ppm therefore corresponds to 700 Hz. The precise factor
 is contained in the Bruker parameter `"SFO1"`. Also, we can calibrate the horizontal axis
 by indicating the chemical shift at the centre of the spectrum:
 ```@example brukerExpl
+import Plots
 spect=NMR.FourierTransform(d,PPM=acqus["SFO1"],CTR=4.76)
-NMR.plot(real(spect),xaxis=:flip,xlabel="1H Chem. Shift [ppm]")
+Plots.plot(real(spect),xaxis=:flip,xlabel="1H Chem. Shift [ppm]")
 Plots.savefig("plot-specHz.svg"); nothing # hide
 ```
 ![](plot-specHz.svg)
@@ -78,10 +80,9 @@ The above spectrum still shows artefacts. To clean it up, we need
 to correct the phase. This can either be done manually,
 by supplying `PH0`and `PH1` arguments to `FourierTransform`, or
 we can resort to automatic phase correction:
-
 ```@example brukerExpl
 spect = NMR.AutoPhaseCorrectChen(spect)
-NMR.plot(real(spect),xaxis=:flip,xlabel="1H Chem. Shift [ppm]")
+Plots.plot(real(spect),xaxis=:flip,xlabel="1H Chem. Shift [ppm]")
 Plots.savefig("plot-specHz-ap.svg"); nothing # hide
 ```
 ![](plot-specHz-ap.svg)
@@ -90,8 +91,64 @@ Plots.savefig("plot-specHz-ap.svg"); nothing # hide
 The above spectrum covers a wide range without any signals, which
 is of no interest. We can chop out the central, important part:
 ```@example brukerExpl
-s2=NMR.cut(spect,-0.5,7.0)
-NMR.plot(real(s2),xaxis=:flip,xlabel="1H Chem. Shift [ppm]")
+s2=NMR.cut(spect,-0.5,9.0)
+Plots.plot(real(s2),xaxis=:flip,xlabel="1H Chem. Shift [ppm]")
 Plots.savefig("plot-S2.svg"); nothing # hide
 ```
 ![](plot-S2.svg)
+
+## Computing Integrals
+In Chemistry, it is customary to show the integral of the spectral signal
+along with the spectrum. This makes the intensity of the peaks directly visible
+as a step height for each signal. The integrated spectrum can be computed
+like this:
+```@example brukerExpl
+intSpect = NMR.integrate(s2)
+Plots.plot(real(s2),xaxis=:flip,xlabel="1H Chem. Shift [ppm]",label="spectrum")
+Plots.plot!(20*intSpect,label="integral")
+Plots.savefig("plot-S3.svg"); nothing # hide
+```
+![](plot-S3.svg)
+
+## Baseline Correction
+In the above plot, it can be seen that the integral line has regions where it decreases
+from left to right. This results from corresponding regions in the spectrum that have negative baseline
+intensity. The baseline of the NMR spectrum, while visually quite acceptable, is numerically
+not perfectly adjusted. The baseline of the real part of the spectrum can be computed
+as follows:
+```@example brukerExpl
+Plots.plot(s2,xaxis=:flip)
+Plots.plot!(NMR.medianBaseline(real(s2),wdw=512),linewidth=4.0,ylims=2.0e10*[-1,10])
+Plots.savefig("plot-S4.svg"); nothing # hide
+```
+![](plot-S4.svg)
+
+With this baseline is subtracted from the spectrum before integration, a much cleaner
+integral curve is obtained:
+```@example brukerExpl
+spectBc = real(s2)-NMR.medianBaseline(real(s2),wdw=512)
+Plots.plot(spectBc,xaxis=:flip)
+intSpect = NMR.integrate(spectBc,flip=true)
+Plots.plot!(20*intSpect)
+Plots.savefig("plot-S5.svg"); nothing # hide
+```
+![](plot-S5.svg)
+
+## Detecting Peaks
+The locations, heights, and widths of the peaks in the spectrum can be automatically
+detected using the `NMR.peaks()` function. It returns a data structure that contains
+all relevant information:
+```@example brukerExpl
+pks=NMR.peaks(spectBc,threshold=1e2)
+```
+This information can then be used for further analysis, for example for comparison
+with a database, or for plotting. Here is an example:
+```@example brukerExpl
+Plots.plot(pks.deconvolution,xaxis=:flip,xlims=[2.9,4.1],ylims=6.0e11*[-1,10],label="deconvolution",yaxis=false,grid=false,legend=Symbol(:outer,:bottomright),minorticks=true,xlabel="1H Chem. Shift [ppm]")
+Plots.plot!(spectBc+2.0e12,label="spectrum") 
+Plots.plot!(pks.positions,5.5e12*ones(length(pks.positions)),seriestype=:scatter,marker=:vline,label="peaks")
+Plots.savefig("plot-S6.svg"); nothing # hide
+```
+![](plot-S6.svg)
+
+

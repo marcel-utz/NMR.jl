@@ -8,6 +8,10 @@ spin dynamics simulations.
 
 ### v0.9.0
 - added JEOL data reading
+- general cleanup of the code
+- AutoPhaseChen() now works properly
+- comlete documentation
+- prepare transition to 1.0.0
 
 ### v0.8.0
 - added GISSMO library interface
