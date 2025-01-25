@@ -1,5 +1,6 @@
-# NMR.jl
 *A set of tools for processing, plotting, and interpreting NMR data*
+
+# Overview
 
 ## Package Features
 

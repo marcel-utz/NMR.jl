@@ -103,10 +103,10 @@ end
 returns a smaller data set, with start and stop indices given by `i1` and `i2`,
 respectively. If either lies outside the horizontal range of `d` an error
 is raised.
-!!! note Alignment
-        The limits of the resulting data set always align with the 
-        horizontal values of `d`. The limits may therefore not be
-        precisely the same as `i1` and `i2`.
+!!! note "Alignment"
+    The limits of the resulting data set always align with the 
+    horizontal values of `d`. The limits may therefore not be
+    precisely the same as `i1` and `i2`.
 """
 function cut(d::Data1D,i1,i2)
     p1=ind2pos(d,i1)
