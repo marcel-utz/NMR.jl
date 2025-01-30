@@ -1,0 +1,10 @@
+name    =   "DMEM cell culture medium"
+format  =   "JEOL"
+tags    =   ["microfluidic NMR", "cells", "metabolomics"]
+author  =   "Yaping Li, KIT"
+reference = "unpublished"
+doi = ""
+description = """
+Initial experiments with culture of MCF-7 cells in the Utz
+lab at KIT.
+"""

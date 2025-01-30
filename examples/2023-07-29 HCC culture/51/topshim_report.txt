@@ -1,0 +1,23 @@
+1D SHIMMING
+
+Parameters:
+maximum order = 7
+probe = Z150373_0003
+solvent = D2O
+shim nucleus = 2H
+nucleus optimised for = 1H
+
+o1p (from lock) = 4.70 ppm
+optimisation parameters = ls
+linewidth 1H = 0.10 Hz
+envelope shape / strictness = 2.00 / 200
+
+Results:
+initial B0 stdDev = 60.91 Hz
+shim changes: none
+
+duration = 1 min 31 sec
+completed with failure
+finished Mon Jul 31 00:27:09 2023
+
+TopshimSetShims - BSMS limits exceeded

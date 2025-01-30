@@ -1,0 +1,120 @@
+# 1 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+; -*-pulsprog-*-
+;
+# 17 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+; wobble pulseprogram for Avance NEO spectrometers
+
+# 36 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+
+# 62 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+# 66 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+define list <frequency> freqList1=<$FQ1LIST>
+# 89 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+
+
+; BEGIN SOUBROUTINE DEFINITION
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+subroutine WOBB_ON_CHAN
+# 157 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; END OF SUBROUTINE DEFINITION
+
+
+define delay		dwellTime
+define loopcounter	wbstCmplx
+define loopcounter      pointsForAveraging
+# 165 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+"pointsForAveraging = l1"
+"dwellTime = 2 * d1 * pointsForAveraging" ; for one point in wobble curve
+"wbstCmplx = td/2"
+
+
+# 170 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+	ze	
+		
+    1	100m ;speed adjustment
+subr WOBB_ON_CHAN
+;EXEC_begin WOBB_ON_CHAN WOBB_ON_CHAN(any freqList1, any setrtp1, any f1, any adc1, any 1u)
+# 93 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+ 
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	exec_on_chan:f1
+
+
+	10u setrtp1|14|13
+
+        ; tell receiver not to acquire until next setrtp1^1
+        1u setrtp1|1
+
+        ; use PL2 to be compatible with old wobble procedure
+	10u pl2:f1
+
+	;********
+	; next wobble curve
+
+    	100m freqList1.res ;speed adjustment
+	
+ 	1m adc1 ph0 syrec
+
+	1u reset:f1
+
+	; tell receiver to acquire WBST points 
+	1u setrtp1|0
+
+	;--------------
+	; now acquire WBST points
+
+    20   1u freqList1(receive):f1
+
+        ; note that at least 150u are required here 
+        ; to avoid spikes after PLL change
+        150u freqList1:f1 
+
+        ; send tune signal and acquire simultaneously
+	10u setrtp1|26|27
+
+	; now acquire a complex sample point
+        0.05u setrtp1^1
+
+        ; dwell time for one complex point
+	; of the wobble curve
+        dwellTime
+
+        ; tell receiver not to acquire until next setrtp1^1
+	1u setrtp1|1
+
+	1u setrtp1^26^27
+
+	1u freqList1.inc
+
+	lo to 20 times wbstCmplx 
+
+    ;--------------
+
+	1u
+
+	exec_wait
+
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
+;EXEC_end   WOBB_ON_CHAN
+# 176 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+# 198 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+# 199 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+
+
+	exec_on_other
+	100m
+	exec_wait
+# 205 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+	rcyc1 = 1
+					
+	exit
+
+
+# 211 "/root/.topspin-BladeEpu/local_acqu/wobbDir/pp_drx"
+ph0 = 0

@@ -1,0 +1,23 @@
+1D SHIMMING
+
+Parameters:
+maximum order = 7
+probe = Z150373_0003
+solvent = D2O
+shim nucleus = 2H
+nucleus optimised for = 1H
+
+o1p (from lock) = 4.70 ppm
+optimisation parameters = ls
+linewidth 1H = 0.10 Hz
+envelope shape / strictness = 2.00 / 200
+
+Results:
+initial B0 stdDev = 63.43 Hz
+shim changes: none
+
+duration = 1 min 35 sec
+completed with failure
+finished Sun Jul 30 23:46:30 2023
+
+TopshimPerformShimming - too many points lost during fit

@@ -1,0 +1,24 @@
+##TITLE= Audit trail, TopSpin 4.0.7
+##JCAMPDX= 5.01
+##ORIGIN= Bruker BioSpin GmbH
+##OWNER= root
+$$ /root/.topspin-BladeEpu/local_acqu/HCC2_230729/150/audita.txt
+##AUDIT TRAIL=  $$ (NUMBER, WHEN, WHO, WHERE, PROCESS, VERSION, WHAT)
+(   1,<2023-07-30 03:58:01.132 +0000>,<root>,<BladeEpu>,<go4>,<TopSpin 4.0.7>,
+      <created by zg on 'CAB AV4 700 MHZ BASIC' (munin) by user 'nmrsu'
+       on data set with UUID 'c0ad6364-2e88-11ee-b2f4-001395264912'
+       started at 2023-07-30 03:25:37.848 +0000, POWCHK enabled, PULCHK disabled,
+       completed at 2023-07-30 03:58:01.132 +0000
+       configuration hash MD5:
+       E6 95 A5 7E 4D D7 73 8D 9E 92 A2 4C 3D 03 78 C2
+       double data hash MD5: 65526
+       BB 0D 50 21 4A DA 30 9E 57 20 1D 1B E7 1A 43 FE>)
+$$ /home/nmrsu/Evie/gar1e19/data/gar1e19/nmr/HCC2_230729/150/audita.txt
+(   2,<2023-07-30 04:57:58.191 +0100>,<nmrsu>,<munin>,<xwish3>,<TopSpin 4.0.7>,
+      <ICON-NMR User ID: gar1e19
+       double data hash MD5: 65526
+       BB 0D 50 21 4A DA 30 9E 57 20 1D 1B E7 1A 43 FE>)
+##END=
+
+$$ hash MD5
+$$ 92 7D 7D 9F B1 4A 7F 9C 45 1A D1 A7 65 1D 90 1C

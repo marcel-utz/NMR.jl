@@ -30,7 +30,9 @@ import Pkg
 
    __precompile__(true);
 
+   include("Data1D.jl")
    include("DataSet.jl")
+   include("Examples.jl")
    include("AutoPhase.jl")
    include("LinearPredict.jl")
    include("PauliMatrix.jl")

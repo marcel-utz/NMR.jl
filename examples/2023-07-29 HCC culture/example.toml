@@ -1,0 +1,10 @@
+name    =   "HCC cell culture media spectra"
+format  =   "Bruker"
+tags    =   ["microfluidic NMR", "cells", "metabolomics"]
+author  =   "Evie Rogers"
+reference = "unpublished"
+doi = ""
+description = """
+^1H NMR experiments obtained from the supernatant of HCC cell cultures.
+Measured on a Bruker AVANCE Neo 700 MHz instrument with a Prodigy cryoprobe.
+"""

@@ -1,0 +1,37 @@
+1D SHIMMING
+
+Parameters:
+maximum order = 7
+probe = Z150373_0003
+solvent = D2O
+shim nucleus = 2H
+nucleus optimised for = 1H
+
+o1p (from lock) = 4.70 ppm
+optimisation parameters = ls
+linewidth 1H = 0.10 Hz
+envelope shape / strictness = 2.00 / 200
+
+Results:
+initial B0 stdDev = 62.32 Hz
+sample size = 2.87 cm, position = -0.02 cm
+B1 calibration done
+final B0 stdDev = 0.19 Hz > improvement = 320.4
+envelope width = 0.30 Hz
+tune lock level increase = 1.0
+shim changes: 
+Z	-1241
+Z2	+393
+Z3	-562
+Z4	+792
+Z5	-1128
+Z6	+6461
+Z7	+743
+X	+9
+XZ	+129
+Y	-28
+YZ	+176
+
+duration = 5 min 16 sec
+completed successfully
+finished Sun Jul 30 09:34:33 2023
