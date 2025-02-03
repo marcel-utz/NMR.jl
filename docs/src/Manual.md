@@ -19,13 +19,21 @@ only the time-domain spectral data is returned, and you
 have to manually convert it to a data object that can be further
 processed.
 
-Here is an example:
+The `NMR.jl` comes with example data that can be used to play
+with its functions. The data can be found through a dictionary in the module
+`Examples`:
+```@example brukerExpl
+import NMR
+import NMR.Examples
+
+data=Examples.Data["HCC cell culture media spectra"]
+```
+We can read raw data from an "fid" file in this set as follows:
+
 ```@example brukerExpl
 ENV["GKSwstype"] = "100" # hide
-import NMR
 import Plots # hide
-
-f=NMR.readBrukerFID("../../test/data/10/fid")
+f=NMR.readBrukerFID(data["files"][1]*"/fid")
 ```
 `f`returns an array with the complex data points contained in the 
 `fid` file. To convert this to useable time-domain data, 
@@ -34,16 +42,19 @@ you need to convert it into a `Data1D` object.
 Bruker NMR systems store the acquisition parameters in a separate file,
 which we can read into a Julia dictionary as follows:
 ```@example brukerExpl
-acqus=NMR.readBrukerParameterFile("../../test/data/10/acqus")
+acqus=NMR.readBrukerParameterFile(data["files"][1]*"/acqus")
 ```
 To convert the raw fid data into a `Data1D` object which we can process, 
 we need some of these parameters. The time step between subsequent points
 in the FID is given by the inverse of the spectral width. Moreover, Bruker
-FIDs actually begin *before* ``t=0``. We have to remove these points:
+FIDs actually begin *before* ``t=0`` due to the 
+group delay of the digital filter. The number of 
+points to remove is found in the `acqus` parameter
+`"GRPDLY"`:
 
 ```@example brukerExpl
 dwellTime=1/acqus["SW_h"]
-f=f[74:end]
+f=f[acqus["GRPDLY"]:end]
 d=NMR.Data1D(f,0.0,length(f)*dwellTime)
 NMR.plot(real(d))
 Plots.savefig("plot-fid.svg"); nothing # hide
@@ -118,7 +129,7 @@ not perfectly adjusted. The baseline of the real part of the spectrum can be com
 as follows:
 ```@example brukerExpl
 Plots.plot(s2,xaxis=:flip)
-Plots.plot!(NMR.medianBaseline(real(s2),wdw=512),linewidth=4.0,ylims=2.0e10*[-1,10])
+Plots.plot!(NMR.medianBaseline(real(s2),wdw=512),linewidth=4.0,ylims=2.0e9*[-1,10])
 Plots.savefig("plot-S4.svg"); nothing # hide
 ```
 ![](plot-S4.svg)
@@ -127,9 +138,9 @@ With this baseline is subtracted from the spectrum before integration, a much cl
 integral curve is obtained:
 ```@example brukerExpl
 spectBc = real(s2)-NMR.medianBaseline(real(s2),wdw=512)
-Plots.plot(spectBc,xaxis=:flip)
+Plots.plot(spectBc,xaxis=:flip,ylims=2e10*[-1,10])
 intSpect = NMR.integrate(spectBc,flip=true)
-Plots.plot!(20*intSpect)
+Plots.plot!(10*intSpect)
 Plots.savefig("plot-S5.svg"); nothing # hide
 ```
 ![](plot-S5.svg)

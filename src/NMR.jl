@@ -43,6 +43,7 @@ import Pkg
    include("ProcessBNF.jl")
    include("Bruker.jl")
    include("Varian.jl")
+   include("JEOL.jl")
 
   function __init__()
     println("Module NMR v0.9.0\n(c)mu 2018-2025");

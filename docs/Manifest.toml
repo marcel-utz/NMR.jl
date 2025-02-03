@@ -350,6 +350,16 @@ git-tree-sha1 = "4d81ed14783ec49ce9f2e168208a12ce1815aa25"
 uuid = "f5851436-0d7a-5f13-b9de-f02708fd171a"
 version = "3.3.10+3"
 
+[[deps.FileIO]]
+deps = ["Pkg", "Requires", "UUIDs"]
+git-tree-sha1 = "2dd20384bf8c6d411b5c7370865b1e9b26cb2ea3"
+uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+version = "1.16.6"
+weakdeps = ["HTTP"]
+
+    [deps.FileIO.extensions]
+    HTTPExt = "HTTP"
+
 [[deps.FilePathsBase]]
 deps = ["Compat", "Dates"]
 git-tree-sha1 = "7878ff7172a8e6beedd1dea14bd27c3c6340d361"
@@ -553,6 +563,12 @@ version = "0.2.2"
 git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
+
+[[deps.JLD2]]
+deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "PrecompileTools", "Requires", "TranscodingStreams"]
+git-tree-sha1 = "91d501cb908df6f134352ad73cde5efc50138279"
+uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+version = "0.5.11"
 
 [[deps.JLFzf]]
 deps = ["Pipe", "REPL", "Random", "fzf_jll"]
@@ -811,10 +827,13 @@ uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
 version = "7.8.3"
 
 [[deps.NMR]]
-deps = ["Arpack", "CSV", "DataFrames", "Dates", "Distributions", "FFTW", "GR", "HTTP", "JSON", "LightXML", "LinearAlgebra", "LsqFit", "Optim", "Pkg", "Plots", "Printf", "SparseArrays", "Statistics"]
+deps = ["Arpack", "CSV", "DataFrames", "Dates", "Distributions", "FFTW", "GR", "HTTP", "JLD2", "JSON", "LightXML", "LinearAlgebra", "LsqFit", "Optim", "Pkg", "Plots", "Printf", "SparseArrays", "Statistics", "TOML"]
 path = ".."
 uuid = "29608d60-07d6-11ea-0b49-239cc88e4b20"
-version = "0.9.0"
+version = "0.10.0"
+
+    [deps.NMR.weakdeps]
+    CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
