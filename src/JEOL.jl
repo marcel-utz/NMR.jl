@@ -314,7 +314,7 @@ with the correctly shaped data.
     and will return a valid `SpectData` array, including the correct
     axes and coordinate information.
 """
-function reshapeJEOL(header,params,data<:AbstractArray)
+function reshapeJEOL(header,params,data)
   error("not implemented yet")
   data = nothing
   dataSectionCount=1

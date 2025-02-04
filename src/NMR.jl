@@ -46,7 +46,7 @@ import Pkg
    include("JEOL.jl")
 
   function __init__()
-    println("Module NMR v0.9.0\n(c)mu 2018-2025");
+      Pkg.status("NMR")
   end
 
 end
