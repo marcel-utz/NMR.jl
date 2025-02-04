@@ -28,8 +28,8 @@ import NMR.Examples
 
 data=Examples.Data["HCC cell culture media spectra"]
 ```
+### Bruker data
 We can read raw data from an "fid" file in this set as follows:
-
 ```@example brukerExpl
 ENV["GKSwstype"] = "100" # hide
 import Plots # hide
@@ -86,6 +86,25 @@ Plots.savefig("plot-specHz.svg"); nothing # hide
 ```
 ![](plot-specHz.svg)
 
+### JEOL data
+We can also import data from a JEOL spectrometer. In this case, the parameters and the
+data are combined in the same (binary) file. JEOL `.jdf` files have a rather elaborate
+structure. Fortunately, there is a function that parses this, and returns the parameters as
+a dictionary, as well as the raw data:
+```@example JEOLExpl
+import Plots # hide
+import NMR
+import NMR.Examples
+
+data=Examples.Data["DMEM cell culture medium"]
+s=open(data["files"][1])
+header,params,data = NMR.readJEOL(s)
+close(s)
+Plots.plot(data)
+Plots.savefig("plot-JEOL-raw.svg");nothing # hide
+``` 
+![](plot-JEOL-raw.svg)
+ 
 ## Phase Correction
 The above spectrum still shows artefacts. To clean it up, we need
 to correct the phase. This can either be done manually,
