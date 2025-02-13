@@ -36,7 +36,7 @@ store an *index* (range of time points or frequency points) along with the corre
 `Data1D` objects can be added and subtracted from one another, as long as their  indices match.
 """
 mutable struct Data1D{Tdata,Tindex}
-   dat::Tdata
+   dat::Vector{Tdata}
    istart::Tindex
    istop::Tindex
 end
@@ -284,7 +284,6 @@ Compute baseline for the real part of `s` by the algorithm of M. S. Friedrichs,
 *Journal of Biomolecular NMR*,  **5** (1995) 147  153.
 The window is automatically calculated as ``\Delta\omega/2^6``, unless
 overridden by giving a value to the optional key `wdw`.
-
 """
 function medianBaseline(s::NMR.Data1D;wdw=length(s)>>6)
     r=real(s.dat)

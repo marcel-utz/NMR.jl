@@ -17,6 +17,7 @@ phase correction for automatic (unsupervised) phase correction.
 """
 function entropy(spect::Data1D)
     h=abs.(real.(val(derivative(spect))))
+    # h=abs.(savitzky_golay(real(val(spect)),21,4,deriv=1).y)
     h/=sum(h)
     return -sum(ent.(h))
 end
